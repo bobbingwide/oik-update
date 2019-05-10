@@ -13,6 +13,7 @@ class OIK_component_update {
 	public $component_type; // Component type in WP-a2z WordPress system
 	public $current_version; // Current version of Git repo
 	public $new_version; // New version of the WordPress component to download and update to
+	public $target_file_name; // File name of the target .zip file
 
 	function __construct() {
 		$this->set_owner();
@@ -21,6 +22,7 @@ class OIK_component_update {
 		$this->set_component_type();
 		$this->set_current_version();
 		$this->set_new_version();
+		$this->set_target_file_name();
 	}
 
 	function set_owner( $owner=null ) {
@@ -45,6 +47,10 @@ class OIK_component_update {
 
 	function set_new_version( $new_version=null ) {
 		$this->new_version = $new_version;
+	}
+
+	function set_target_file_name( $target=null ) {
+		$this->target_file_name = $target;
 	}
 
 	/**
@@ -92,7 +98,11 @@ class OIK_component_update {
 			$error = $this->download_theme_version();
 		}
 
-		//$this->empty_git_repo();
+		if ( null === $error ) {
+			$this->empty_git_repo();
+			$this->extract_zip_to_git_repo();
+			//$this->apply_git_changes();
+		}
 
 
 	}
@@ -210,6 +220,48 @@ class OIK_component_update {
 		return $this->component_type === $component_type;
 	}
 
+	function extract_zip_to_git_repo() {
+		$repo_dir = $this->owner;
+		$zip_file = $this->target_file_name;
+		$save_dir = getcwd();
+		chdir( $repo_dir );
+		$this->do7zip_extract( $zip_file, $this->repo );
+
+		chdir( $save_dir );
+	}
+
+	/**
+	 * Extracts the zip file to the current directory
+	 *
+	 * Command should be x to eXtract files with full paths.
+	 * If we name the target directory then we may get the wrong output for WordPress
+	 * which should be extracted to wp-a2z
+	 *
+	 * 7z.exe e
+	 * @param $filename
+	 */
+
+	function do7zip_extract( $filename, $repo ) {
+
+		$cmd = '"C:\\Program Files\\7-Zip\\7z.exe"';
+		$cmd .= " x ";
+		//$cmd .= "-o" . '../' . $repo;
+		$cmd .= ' "';
+		$cmd .= $filename;
+		$cmd .= '"';
+		$output = array();
+		$return_var = null;
+		echo $cmd;
+		echo PHP_EOL;
+		$lastline = exec( $cmd, $output, $return_var );
+		echo $return_var;
+		print_r( $output );
+
+
+	}
+
+
+
 	function empty_git_repo() {
 		$repo_dir = $this->owner . '/' . $this->repo;
 		$this->echo( "Empty git repo:", $repo_dir );
@@ -282,6 +334,7 @@ class OIK_component_update {
 		} else {
 
 			$written = file_put_contents( $target, $zip_file );
+			$this->set_target_file_name( $target );
 			$this->echo( "Written:", $target );
 			$this->echo( "Bytes:", $written );
 			$error = null;

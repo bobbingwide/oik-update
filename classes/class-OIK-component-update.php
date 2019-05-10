@@ -74,14 +74,26 @@ class OIK_component_update {
 		$this->echo( "New version:", $this->new_version );
 		$this->echo( "Type:", $this->component_type );
 
-		$owner = $this->query_owner();
-
-		$this->echo( "Owner:", $owner );
 		$repo = $this->query_repo();
 		$this->echo( "Repo:", $repo );
 
+		$owner = $this->query_owner();
+		$this->echo( "Owner:", $owner );
+
+
 		$this->download_assets();
-		$this->empty_git_repo();
+
+		// What about WordPress ? - it's the special repo wp-a2z
+		if ( $this->is_wordpress() ) {
+			$error = $this->download_wordpress_version();
+		} elseif ( $this->is_plugin() ) {
+			$error = $this->download_plugin_version();
+		} else {
+			$error = $this->download_theme_version();
+		}
+
+		//$this->empty_git_repo();
+
 
 	}
 
@@ -98,14 +110,13 @@ class OIK_component_update {
 	/**
 	 * Queries the repository owner
 	 *
-	 * @return string wp-a2z | bobbingwide |
+	 * @return string wp-a2z | bobbingwide | some other repository owner
 	 */
 	function query_owner() {
-		//$this->owner = null;
 		$owners = $this->list_owners();
 		foreach ( $owners as $owner ) {
 
-			if ( is_dir( $owner . '/' . $this->component ) ) {
+			if ( is_dir( $owner . '/' . $this->repo ) ) {
 				$this->set_owner( $owner );
 				break;
 			}
@@ -114,9 +125,18 @@ class OIK_component_update {
 
 	}
 
+	/**
+	 * Sets and returns the repository name based on the component
+	 * Case sensitive checking of wordpress
+	 *
+	 * @return string
+	 */
 	function query_repo() {
-		// if we've already found the owner then we must know the repo!
-		$this->repo = $this->component;
+		if ( $this->component === "wordpress") {
+			$this->repo = "wp-a2z";
+		} else {
+			$this->repo = $this->component;
+		}
 		return $this->repo;
 	}
 
@@ -174,6 +194,10 @@ class OIK_component_update {
 
 	}
 
+	function is_wordpress() {
+		return $this->component === 'wordpress';
+	}
+
 	function is_plugin() {
 		return $this->is_component_type( 'plugin');
 
@@ -208,6 +232,87 @@ class OIK_component_update {
 			}
 		}
 		chdir( $save_dir );
+
+	}
+
+	/**
+	 * Download the WordPress version's .zip file from wordpress.org
+	 * See:
+	 * https://wordpress.org/download/releases/
+	 *
+	 * https://wordpress.org/wordpress-5.2.zip
+	 *
+	 */
+	function download_wordpress_version() {
+
+		$filename = $this->get_zip_file_name( '-');
+
+		$url  = 'https://wordpress.org/';
+		$url .= $filename;
+		$target  = 'C:/apache/htdocs/downloads/wordpress/';
+		$target .= $filename;
+		$error = $this->download_url_to_target( $url, $target );
+		return $error;
+
+	}
+
+	/**
+	 * Download the plugin version's .zip file from wordpress.org
+	 *
+	 *  https://downloads.wordpress.org/plugin/gutenberg.5.5.0.zip
+	 */
+	function download_plugin_version() {
+
+		$filename = $this->get_zip_file_name();
+
+		$url  = 'https://downloads.wordpress.org/plugin/';
+		$url .= $filename;
+		$target  = 'C:/apache/htdocs/downloads/plugins/';
+		$target .= $filename;
+		$error = $this->download_url_to_target( $url, $target );
+		return $error;
+	}
+
+	function download_url_to_target( $url, $target ) {
+		$this->echo( "Downloading:", $url );
+		$zip_file = file_get_contents( $url );
+		if ( $zip_file === false ) {
+			$error = error_get_last();
+			$this->echo( "Error:", $error['message']);
+		} else {
+
+			$written = file_put_contents( $target, $zip_file );
+			$this->echo( "Written:", $target );
+			$this->echo( "Bytes:", $written );
+			$error = null;
+		}
+		return $error;
+	}
+
+	/**
+	 * Download the themes version's .zip file from wordpress.org
+	 *
+	 *  https://downloads.wordpress.org/theme/twentynineteen.1.4.zip
+	 */
+	function download_theme_version() {
+
+		$filename = $this->get_zip_file_name();
+
+		$url  = 'https://downloads.wordpress.org/theme/';
+		$url .= $filename;
+		$target  = 'C:/apache/htdocs/downloads/themes/';
+		$target .= $filename;
+		$error = $this->download_url_to_target( $url, $target );
+		return $error;
+
+	}
+
+	function get_zip_file_name( $sep='.') {
+		$filename  = $this->component;
+		$filename .= $sep;
+		$filename .= $this->new_version;
+		$filename .= '.zip';
+		return $filename;
 
 	}
 

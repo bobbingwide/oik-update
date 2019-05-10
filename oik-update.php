@@ -26,16 +26,20 @@ if ( PHP_SAPI !== 'cli' ) {
  * [ ] 3. Download latest assets into
  * [ ] 4. Determine the repo owner ( wp-a2z or bobbingwide)
  *     If the component is processed directly from the GIT repo then we don't need to do this
- * [ ] 5. Empty the git repo ( need to determine repo owner ) c:\github\wp-a2z\gutenberg leaving the .git folder
+ *
+ * [ ] 5. Download WordPress to \apache\htdocs\downloads\wordpress
  * [ ] 6. Download plugin https://downloads.wordpress.org/plugin/gutenberg.5.5.0.zip to \apache\htdocs\downloads\plugins
  * [ ] 7. Download theme to \apache\htdocs\downloads\themes
- * [ ] 8. Run 7-zip to open the .zip file and extract to \github\wp-a2z\gutenberg
- * [ ] 9. Add all the files to the repo - git add .
- * [ ] 10. Commit the changes: git commit -m "v version version-date
- * [ ] 11. Tag the version
- * [ ] 12. Push the changes to GitHub
- * [ ] 13. Pull the changes to \apache\htdocs\wp-a2z version
- * [ ] 14. Run oik-shortcodes to rebuild the dynamic API reference
+ *
+ * [ ] 8. Empty the git repo ( need to determine repo owner ) c:\github\wp-a2z\gutenberg leaving the .git folder
+ * [ ] 9. Run 7-zip to open the .zip file and extract to \github\wp-a2z\gutenberg
+ * [ ] 10. Add all the files to the repo - git add .
+ * [ ] 11. Commit the changes: git commit -m "v version version-date
+ * [ ] 12. Tag the version
+ *
+ * [ ] 13. Push the changes to GitHub
+ * [ ] 14. Pull the changes to \apache\htdocs\wp-a2z version
+ * [ ] 15. Run oik-shortcodes to rebuild the dynamic API reference
  *
  *
  *
@@ -82,6 +86,13 @@ function oik_update_query_autoload_classes( $classes ) {
 	, "plugin" => "oik-update"
 	, "path" => "classes"
 	, 'file' => 'classes/class-OIK-component-update.php'
+	);
+
+	$classes[] = array( "class" => "Git" ,
+						 "plugin" => "oik-batch",
+		"path" => "includes",
+		"file" => "includes/class-git.php"
+
 	);
 	return( $classes );
 }

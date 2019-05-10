@@ -56,23 +56,27 @@ class OIK_component_update {
 	/**
 	 * Performs the update
 	 *
-*  Manual process to be replicated
-*
-* [x] 1. Identify component type ( plugin or theme ) from component name
-* [x] 2. If not known determine component type: plugin or theme
-* [ ] 3. Download latest assets into  c:\apache\htdocs\downloads\banners and icons
-* [x] 4. Determine the repo owner ( wp-a2z or bobbingwide)
-*     If the component is processed directly from the GIT repo then we don't need to do this
- * [ ] 5. Empty the git repo ( need to determine repo owner ) c:\github\wp-a2z\gutenberg leaving the .git folder
- * [ ] 6. Download plugin https://downloads.wordpress.org/plugin/gutenberg.5.5.0.zip to \apache\htdocs\downloads\plugins
- * [ ] 7. Download theme to \apache\htdocs\downloads\themes
- * [ ] 8. Run 7-zip to open the .zip file and extract to \github\wp-a2z\gutenberg
- * [ ] 9. Add all the files to the repo - git add .
- * [ ] 10. Commit the changes: git commit -m "v version version-date
- * [ ] 11. Tag the version
- * [ ] 12. Push the changes to GitHub
- * [ ] 13. Pull the changes to \apache\htdocs\wp-a2z version
- * [ ] 14. Run oik-shortcodes to rebuild the dynamic API reference
+	 *  Manual process to be replicated
+	 *
+	 * [x] 1. Identify component type ( plugin or theme ) from component name
+	 * [x] 2. If not known determine component type: plugin or theme
+	 * [ ] 3. Download latest assets into
+	 * [x] 4. Determine the repo owner ( wp-a2z or bobbingwide)
+	 *     If the component is processed directly from the GIT repo then we don't need to do this
+	 *
+	 * [x] 5. Download WordPress to \apache\htdocs\downloads\wordpress
+	 * [x] 6. Download plugin https://downloads.wordpress.org/plugin/gutenberg.5.5.0.zip to \apache\htdocs\downloads\plugins
+	 * [x] 7. Download theme to \apache\htdocs\downloads\themes
+	 *
+	 * [x] 8. Empty the git repo ( need to determine repo owner ) c:\github\wp-a2z\gutenberg leaving the .git folder
+	 * [x] 9. Run 7-zip to open the .zip file and extract to \github\wp-a2z\gutenberg
+	 * [x] 10. Add all the files to the repo - git add .
+	 * [x] 11. Commit the changes: git commit -m "v version version-date
+	 * [x] 12. Tag the version
+	 *
+	 * [ ] 13. Push the changes to GitHub
+	 * [ ] 14. Pull the changes to \apache\htdocs\wp-a2z version
+	 * [ ] 15. Run oik-shortcodes to rebuild the dynamic API reference
 	*/
 	function perform_update() {
 		$this->echo( 'Performing update for...' );
@@ -86,8 +90,7 @@ class OIK_component_update {
 		$owner = $this->query_owner();
 		$this->echo( "Owner:", $owner );
 
-
-		$this->download_assets();
+		$this->download_assets(); // @TODO
 
 		// What about WordPress ? - it's the special repo wp-a2z
 		if ( $this->is_wordpress() ) {
@@ -101,10 +104,8 @@ class OIK_component_update {
 		if ( null === $error ) {
 			$this->empty_git_repo();
 			$this->extract_zip_to_git_repo();
-			//$this->apply_git_changes();
+			$this->apply_git_changes();
 		}
-
-
 	}
 
 	/**
@@ -287,6 +288,26 @@ class OIK_component_update {
 
 	}
 
+	/**
+	 * Git add, then commit and tag
+	 */
+	function apply_git_changes() {
+
+		$save_dir = getcwd();
+		$repo_dir = $this->owner . '/' . $this->repo;
+		chdir( $repo_dir );
+		$git = new Git();
+
+		$git->command( "add .");
+		$this->version_date = bw_format_date();
+		$message = sprintf( '%1$s %2$s - %3$s', $this->repo, $this->new_version, $this->version_date );
+		$git->command( "commit", "-m \"$message\"" );
+		$git->command( "tag", $this->new_version );
+		// git add .
+		// git commit -m "$component $new_version - ccyy/mm/dd
+		chdir( $save_dir );
+
+	}
 	/**
 	 * Download the WordPress version's .zip file from wordpress.org
 	 * See:

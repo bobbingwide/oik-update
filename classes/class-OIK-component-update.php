@@ -346,19 +346,35 @@ class OIK_component_update {
 		return $error;
 	}
 
-	function download_url_to_target( $url, $target ) {
-		$this->echo( "Downloading:", $url );
-		$zip_file = file_get_contents( $url );
-		if ( $zip_file === false ) {
-			$error = error_get_last();
-			$this->echo( "Error:", $error['message']);
-		} else {
+	/**
+	 * Downloads the URL to the target file if not already downloaded
+	 *
+	 * This caters for Genesis theme framework being manually downloaded
+	 *
+	 * @param $url
+	 * @param $target
+	 *
+	 * @return array|null
+	 */
 
-			$written = file_put_contents( $target, $zip_file );
-			$this->set_target_file_name( $target );
-			$this->echo( "Written:", $target );
-			$this->echo( "Bytes:", $written );
+	function download_url_to_target( $url, $target ) {
+		$this->set_target_file_name( $target );
+		if ( file_exists( $target ) ) {
+			$this->echo( "Download exists:", $target);
 			$error = null;
+		} else {
+			$this->echo( "Downloading:", $url );
+			$zip_file = file_get_contents( $url );
+			if ( $zip_file === false ) {
+				$error = error_get_last();
+				$this->echo( "Error:", $error['message'] );
+			} else {
+
+				$written = file_put_contents( $target, $zip_file );
+				$this->echo( "Written:", $target );
+				$this->echo( "Bytes:", $written );
+				$error = null;
+			}
 		}
 		return $error;
 	}

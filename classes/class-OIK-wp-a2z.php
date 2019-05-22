@@ -113,7 +113,8 @@ class OIK_wp_a2z {
 		$icon = @file_get_contents( "http://ps.w.org/$plugin/assets/icon-256x256.$extension" );
 		//echo $icon;
 		if ( $icon !== false ) {
-			$written = file_put_contents( "c:/apache/htdocs/downloads/icons/$plugin-icon-256x256.$extension", $icon );
+			$asset_filename = $this->get_asset_filename( 'icon', $plugin, $extension );
+			$written = file_put_contents( $asset_filename, $icon );
 			$this->echo('Icon bytes:', $written );
 			$this->icon_ext = $extension;
 		}
@@ -125,11 +126,26 @@ class OIK_wp_a2z {
 		$written = false;
 		$banner = @file_get_contents( "http://ps.w.org/$plugin/assets/banner-772x250.$extension" );
 		if ( $banner !== false ) {
-			$written = file_put_contents( "c:/apache/htdocs/downloads/banners/$plugin-banner-772x250.$extension", $banner );
+			$asset_filename = $this->get_asset_filename( 'banner', $plugin, $extension );
+			$written = file_put_contents( $asset_filename, $banner );
+			//$written = file_put_contents( "c:/apache/htdocs/downloads/banners/$plugin-banner-772x250.$extension", $banner );
 			$this->echo( 'Banner bytes:', $written );
 			$this->banner_ext = $extension;
 		}
 		return $written;
+	}
+
+	function get_asset_filename( $type, $plugin, $extension) {
+		$asset_filename = 'c:/apache/htdocs/downloads/';
+		$asset_filename .= $type . 's/';
+		$asset_filename .= $plugin;
+		if ( $type === 'banner') {
+			$asset_filename .= '-banner-772x250.';
+		} else {
+			$asset_filename .= '-icon-256x256.';
+		}
+		$asset_filename .= $extension;
+		return $asset_filename;
 	}
 
 	/**
@@ -151,8 +167,10 @@ class OIK_wp_a2z {
 
 	function get_zip_file_name( $sep='.') {
 		$filename  = $this->component;
-		$filename .= $sep;
-		$filename .= $this->new_version;
+		if ( $this->new_version !== "" ) {
+			$filename .= $sep;
+			$filename .= $this->new_version;
+		}
 		$filename .= '.zip';
 		return $filename;
 

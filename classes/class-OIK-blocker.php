@@ -14,6 +14,7 @@ class OIK_blocker extends OIK_wp_a2z{
 	//public $current_version; // Current version of Git repo
 	//public $new_version; // New version of the WordPress component to download and update to
 	//public $target_file_name; // File name of the target .zip file
+	public $plugin_post = null;
 
 	function __construct() {
 		parent::__construct();
@@ -51,16 +52,20 @@ class OIK_blocker extends OIK_wp_a2z{
 		$this->echo( "New version:", $this->new_version );
 		$this->download_assets();
 		$this->download_plugin_version();
-		$this->extract_zip_to_plugin_dir();
+		$this->update_installed_plugin();
+		$this->update_oik_plugin();
 
 	}
 
 	/**
-	 * Basically we just want to update the plugin from the download folder!
-	 *
+	 * Updates the installed plugin
+	 * Basically we just want to update the plugin from the download folder
+	 * @TODO There should be no need to do this multiple times!
+	 * We should check the currently active version.
+	 * This can be done using the virtual field.
 	 */
 
-	function extract_zip_to_plugin_dir() {
+	function update_installed_plugin() {
 		//$repo_dir = WP_PLUGIN_DIR;
 		$zip_file = $this->target_file_name;
 		include( ABSPATH . 'wp-admin/includes/file.php' );
@@ -68,8 +73,36 @@ class OIK_blocker extends OIK_wp_a2z{
 		include( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 		$upgrader = new Plugin_Upgrader();
 		$upgraded = $upgrader->install( $zip_file );
+	}
 
+	function update_oik_plugin() {
+		oik_require( "admin/oik-apis.php", "oik-shortcodes" );
+		//$component_id = oiksc_get_component_by_name( $this->component );
+		$this->echo( "Component:", $this->component );
+		$this->echo( 'Type:', $this->component_type );
+		$plugin_post = oiksc_load_component( $this->component, $this->component_type );
+		//print_r( $plugin_post );
+		if ( null === $plugin_post ) {
+			$plugin_post = $this->create_oik_plugin();
+		} else {
+			$this->echo( "ID:", $plugin_post->ID );
+			$this->echo( 'Title:', $plugin_post->post_title );
+		}
 
+		$this->plugin_post = $plugin_post;
+
+		$this->update_featured_image();
+	}
+
+	/**
+	 *
+	 * Update the featured image to be the latest asset
+	 * if the new asset is different from the current one.
+	 *
+	 * New asset = c:/apache/htdocs/downloads/banners/$plugin-772x250.$ext
+	 */
+
+	function update_featured_image() {
 
 	}
 

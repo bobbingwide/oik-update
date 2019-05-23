@@ -52,7 +52,7 @@ class OIK_blocker extends OIK_wp_a2z{
 	 * - Download the banner and icon
 	 * - Download the new plugin version
 	 * - Update the installed plugin to the new version
-	 * - Update the oik_plugin, replacing the featured image 
+	 * - Update the oik_plugin, replacing the featured image
 	 */
 
 
@@ -86,23 +86,96 @@ class OIK_blocker extends OIK_wp_a2z{
 	}
 
 	function update_oik_plugin() {
-		oik_require( "admin/oik-apis.php", "oik-shortcodes" );
+		//oik_require( "admin/oik-apis.php", "oik-shortcodes" );
 		//$component_id = oiksc_get_component_by_name( $this->component );
 		$this->echo( "Component:", $this->component );
 		$this->echo( 'Type:', $this->component_type );
-		$plugin_post = oiksc_load_component( $this->component, $this->component_type );
+		$this->plugin_post = oiksc_load_component( $this->component, $this->component_type );
 		//print_r( $plugin_post );
-		if ( null === $plugin_post ) {
-			$plugin_post = $this->create_oik_plugin();
+		if ( null === $this->plugin_post ) {
+			$this->plugin_post = $this->create_oik_plugin();
 		} else {
-			$this->echo( "ID:", $plugin_post->ID );
-			$this->echo( 'Title:', $plugin_post->post_title );
+			$this->echo( "ID:", $this->plugin_post->ID );
+			$this->echo( 'Title:', $this->plugin_post->post_title );
+			$this->alter_oik_plugin();
 		}
-
-		$this->plugin_post = $plugin_post;
 
 		$this->update_featured_image();
 	}
+
+	function create_oik_plugin() {
+		$this->echo( "Creating:", $this->component );
+
+		gob();
+	}
+
+	function alter_oik_plugin() {
+
+		$this->echo( "Updating:", $this->plugin_post->post_title );
+		$this->plugin_post->post_content = $this->create_plugin_content();
+		print_r( $this->plugin_post );
+		wp_insert_post( $this->plugin_post );
+	}
+
+/*
+$template[] = [ 'core/paragraph', [ 'placeholder' => 'Copy the plugin description'] ];
+$template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin banner=p]' ] ];
+$template[] = [ 'core/paragraph', [ 'content' => 'This plugin provides xx blocks' ] ];
+$template[] = [ 'core/more' ];
+$template[] = [ 'oik-block/blocklist' ];
+$template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] ];
+*/
+
+	function create_plugin_content() {
+		oik_require( 'admin/oik-create-blocks.php', 'oik-shortcodes');
+		$content = null;
+		$placeholder = $this->block_atts_encode( [ "placeholder" => "Plugin short description"]);
+		$content .= $this->generate_block( "paragraph", $placeholder, "<p></p>" );
+		//$content .= $this->generate_block( "more", null, '<!--more-->' );
+		$content .= $this->generate_block( 'shortcode', null, "[bw_plug name={$this->component} banner={$this->banner_ext}]" );
+		$para = '<p class="has-background has-luminous-vivid-orange-background-color">Under Construction</p>';
+		$content .= $this->generate_block( "paragraph", $this->block_atts_encode( ['backgroundColor' => 'luminous-vivid-orange'] ), $para );
+		$content .= $this->generate_block( "more", null, '<!--more-->' );
+		$content .= $this->generate_block( "oik-block/blocklist" );
+		$content .= $this->generate_block( 'shortcode', null, "[bw_plug name={$this->component} table=y]" );
+
+		//$content .= $this->generate_block( "heading", null, "<h2>Example</h2>" );
+		//$content .= $this->generate_block( "spacer", null, '<div style="height:100px" aria-hidden="true" class="wp-block-spacer"></div>' );
+		//$placeholder = $this->block_atts_encode( [ "placeholder" => "Type / to choose the sample block"]);
+		//$content .= $this->generate_block( "paragraph", $placeholder, "<p></p>");
+		//$content .= $this->generate_block( $block_type_name );
+		//$content .= $this->generate_block( "spacer", null, '<div style="height:100px" aria-hidden="true" class="wp-block-spacer"></div>' );
+		$content .= $this->generate_block( "separator", null, '<hr class="wp-block-separator"/>');
+		$content .= $this->generate_block( "heading", null, "<h2>Notes</h2>");
+		$content .= $this->generate_block( "list", null, '<ul><li>TBC</li></ul>');
+		//echo $content;
+		//oikb_get_response( "Continue?", true );
+		//gob();
+		return $content;
+	}
+
+	function block_atts_encode( $atts ) {
+		$block_atts = json_encode( $atts, JSON_UNESCAPED_SLASHES );
+		return $block_atts;
+	}
+
+	function generate_block( $block_type_name, $atts=null, $content=null ) {
+		$block = "<!-- wp:$block_type_name ";
+		if ( $atts ) {
+			$block .= $atts;
+			$block .= " ";
+		}
+		$block .= "-->";
+		$block .= "\n";
+		if ( $content ) {
+			$block .= $content;
+			$block .= "\n";
+		}
+		$block .= "<!-- /wp:$block_type_name -->";
+		$block .= "\n\n";
+		return $block;
+	}
+
 
 	/**
 	 *

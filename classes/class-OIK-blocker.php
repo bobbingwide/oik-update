@@ -110,11 +110,18 @@ class OIK_blocker extends OIK_wp_a2z{
 	}
 
 	function alter_oik_plugin() {
+		if ( $this->maybe_update_content() ) {
+			$this->echo( "Updating:", $this->plugin_post->post_title );
+			$this->plugin_post->post_content = $this->create_plugin_content();
+			//print_r( $this->plugin_post );
+			wp_insert_post( $this->plugin_post );
+		}
+	}
 
-		$this->echo( "Updating:", $this->plugin_post->post_title );
-		$this->plugin_post->post_content = $this->create_plugin_content();
-		print_r( $this->plugin_post );
-		wp_insert_post( $this->plugin_post );
+	function maybe_update_content() {
+		$pos = strpos( $this->plugin_post->post_content, '[bw_plug' );
+		$update = $pos === false;
+		return $update;
 	}
 
 /*

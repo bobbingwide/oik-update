@@ -46,6 +46,16 @@ class OIK_blocker extends OIK_wp_a2z{
 	}
 
 
+	/**
+	 * Applies updates for a new plugin version
+	 *
+	 * - Download the banner and icon
+	 * - Download the new plugin version
+	 * - Update the installed plugin to the new version
+	 * - Update the oik_plugin, replacing the featured image 
+	 */
+
+
 
 	function perform_update() {
 		$this->echo( "Component:", $this->component );
@@ -99,11 +109,73 @@ class OIK_blocker extends OIK_wp_a2z{
 	 * Update the featured image to be the latest asset
 	 * if the new asset is different from the current one.
 	 *
-	 * New asset = c:/apache/htdocs/downloads/banners/$plugin-772x250.$ext
+	 * $banner_filename = c:/apache/htdocs/downloads/banners/$plugin-772x250.$ext
+	 * $attached_file = C:\apache\htdocs\wp-a2z/wp-content/uploads/sites/10/2019/03/block-gallery-banner-772x250-2.png
 	 */
 
 	function update_featured_image() {
+		include_once ABSPATH . 'wp-admin/includes/image.php';
+		$banner_filename = $this->get_asset_filename( 'banner', $this->component, $this->banner_ext );
+		$this->echo( "Banner:", $banner_filename);
+		$featured_image = get_post_thumbnail_id( $this->plugin_post->ID );
+		if ( '' === $featured_image ) {
+			$featured_image = $this->create_attachment( $banner_filename, "Banner", "Banner desc", $this->plugin_post->ID );
+			$this->set_thumbnail_id( $featured_image );
 
+		} else {
+			$this->echo( 'Featured:', $featured_image );
+			$attached_file = get_attached_file( $featured_image, true );
+			$this->maybe_replace_featured_image( $banner_filename, $attached_file );
+
+		}
+		//$this->set_thumbnail_id( $featured_image );
+	}
+
+	/**
+	 * Creates the attachment file from the temporary file
+	 *
+	 * Upload the file to a new attachment and make it the featured image
+	 * Note: If we don't copy the $file then this gets deleted
+	 * We need to create a temporary file
+	 *
+	 * Use media_handle_sideload() to do the validation and storage stuff
+	 */
+	function create_attachment( $file, $name, $desc, $post_id=0 ) {
+		$file_array['tmp_name'] = $this->copy_to_tmp_name( $file );
+		$file_array['type'] = mime_content_type( $file );
+		$file_array['name'] = basename( $file );
+
+		bw_trace2( $file_array );
+		include ABSPATH  . 'wp-admin/includes/media.php';
+		$id = media_handle_sideload( $file_array, $post_id, $desc );
+		if ( is_wp_error( $id ) ) {
+			bw_trace2( $id );
+			print_r( $id );
+			gob();
+		} else {
+			// e( "attachment: $id" );
+		}
+		return( $id );
+	}
+
+	function copy_to_tmp_name( $file ) {
+		$tmp_name = wp_tempnam( $file );
+		copy( $file, $tmp_name );
+		$this->echo( 'tmp_name', $tmp_name );
+		return $tmp_name;
+	}
+
+	function set_thumbnail_id( $featured_image ) {
+		update_post_meta( $this->plugin_post->ID, "_thumbnail_id", $featured_image );
+	}
+
+	function maybe_replace_featured_image( $banner_filename, $attached_file ) {
+		if ( file_exists( $banner_filename ) ) {
+			copy( $banner_filename, $attached_file );
+			$this->echo( 'Attached:', $attached_file );
+		} else {
+			$this->echo( "Banner gone:", $banner_filename );
+		}
 	}
 
 

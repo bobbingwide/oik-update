@@ -127,10 +127,12 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 */
 
 	function create_plugin_content() {
-		oik_require( 'admin/oik-create-blocks.php', 'oik-shortcodes');
+		//oik_require( 'admin/oik-create-blocks.php', 'oik-shortcodes');
 		$content = null;
 		$placeholder = $this->block_atts_encode( [ "placeholder" => "Plugin short description"]);
-		$content .= $this->generate_block( "paragraph", $placeholder, "<p></p>" );
+		$this->get_plugin_data();
+		$short_description = $this->get_short_description();
+		$content .= $this->generate_block( "paragraph", $placeholder, $short_description );
 		//$content .= $this->generate_block( "more", null, '<!--more-->' );
 		$content .= $this->generate_block( 'shortcode', null, "[bw_plug name={$this->component} banner={$this->banner_ext}]" );
 		$para = '<p class="has-background has-luminous-vivid-orange-background-color">Under Construction</p>';
@@ -174,6 +176,24 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 		$block .= "<!-- /wp:$block_type_name -->";
 		$block .= "\n\n";
 		return $block;
+	}
+
+	function get_plugin_data() {
+		oik_require( 'shortcodes/oik-plug.php', 'oik-bob-bing-wide' );
+		$this->plugin_data = bw_get_plugin_data( $this->component );
+		print_r( $this->plugin_data);
+	}
+
+	function get_plugin_name() {
+		$plugin_name = bw_array_get( $this->plugin_data, 'Name', $this->component);
+		return $plugin_name;
+	}
+
+	function get_short_description() {
+		$short_description = '<p>';
+		$short_description .= bw_array_get( $this->plugin_data, 'Description', null );
+		$short_description .= '</p>';
+		return $short_description;
 	}
 
 

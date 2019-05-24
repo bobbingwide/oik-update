@@ -15,6 +15,8 @@ class OIK_blocker extends OIK_wp_a2z{
 	//public $new_version; // New version of the WordPress component to download and update to
 	//public $target_file_name; // File name of the target .zip file
 	public $plugin_post = null;
+	public $plugin_data = null; /* From the main plugin file */
+	public $plugin_file = null; /* e.g. oik.php - basename ( second half ) of oik/oik.php for _oikp_name */
 
 	function __construct() {
 		parent::__construct();
@@ -90,23 +92,47 @@ class OIK_blocker extends OIK_wp_a2z{
 		//$component_id = oiksc_get_component_by_name( $this->component );
 		$this->echo( "Component:", $this->component );
 		$this->echo( 'Type:', $this->component_type );
+		$this->get_plugin_data();
 		$this->plugin_post = oiksc_load_component( $this->component, $this->component_type );
 		//print_r( $plugin_post );
 		if ( null === $this->plugin_post ) {
-			$this->plugin_post = $this->create_oik_plugin();
+			$this->create_oik_plugin();
 		} else {
 			$this->echo( "ID:", $this->plugin_post->ID );
 			$this->echo( 'Title:', $this->plugin_post->post_title );
 			$this->alter_oik_plugin();
 		}
 
-		$this->update_featured_image();
+		if ( $this->plugin_post ) {
+			$this->update_featured_image();
+		}
 	}
 
 	function create_oik_plugin() {
 		$this->echo( "Creating:", $this->component );
 
-		gob();
+		$post = array();
+		$post['post_title'] = $this->get_plugin_name();
+		$post['post_content'] = $this->create_plugin_content();
+		$post['post_type'] = 'oik-plugins';
+		$post['post_status'] = 'publish';
+		$_POST['_oikp_type'] = '1';
+		$_POST['_oikp_slug'] = $this->component;
+		$_POST['_oikp_name'] = $this->get_plugin_file_name();
+		$_POST['_oikp_desc'] = $this->get_plugin_name();
+		$_POST['_oikp_uri'] = $this->get_plugin_uri();
+		//print_r( $post );
+		//print_r( $_POST );
+		//gob();
+		$ID = wp_insert_post( $post );
+		if ( $ID ) {
+			$this->echo( "Created:", $ID );
+			$this->plugin_post = get_post( $ID );
+		} else {
+			$this->echo( "Failed:", $this->component );
+			gob();
+		}
+
 	}
 
 	function alter_oik_plugin() {
@@ -137,7 +163,7 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 		//oik_require( 'admin/oik-create-blocks.php', 'oik-shortcodes');
 		$content = null;
 		$placeholder = $this->block_atts_encode( [ "placeholder" => "Plugin short description"]);
-		$this->get_plugin_data();
+		//$this->get_plugin_data();
 		$short_description = $this->get_short_description();
 		$content .= $this->generate_block( "paragraph", $placeholder, $short_description );
 		//$content .= $this->generate_block( "more", null, '<!--more-->' );
@@ -145,7 +171,8 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 		$para = '<p class="has-background has-luminous-vivid-orange-background-color">Under Construction</p>';
 		$content .= $this->generate_block( "paragraph", $this->block_atts_encode( ['backgroundColor' => 'luminous-vivid-orange'] ), $para );
 		$content .= $this->generate_block( "more", null, '<!--more-->' );
-		$content .= $this->generate_block( "oik-block/blocklist" );
+		$atts = $this->block_atts_encode( [ 'showBatch' => 'true']);
+		$content .= $this->generate_block( "oik-block/blocklist", $atts );
 		$content .= $this->generate_block( 'shortcode', null, "[bw_plug name={$this->component} table=y]" );
 
 		//$content .= $this->generate_block( "heading", null, "<h2>Example</h2>" );
@@ -185,17 +212,59 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 		return $block;
 	}
 
+	/**
+	 * Gets the plugin_data for the first plugin file found in the plugin.
+	 * Sets the plugin_file as well as plugin_data
+	 *
+	 * @TODO Maybe it should get the one that matches the plugin directory
+	 */
+
 	function get_plugin_data() {
-		oik_require( 'shortcodes/oik-plug.php', 'oik-bob-bing-wide' );
-		$this->plugin_data = bw_get_plugin_data( $this->component );
-		print_r( $this->plugin_data);
+		$plugins = get_plugins( '/' . $this->component ) ;
+		//oik_require( 'shortcodes/oik-plug.php', 'oik-bob-bing-wide' );
+		//$this->plugin_data = bw_get_plugin_data( $this->component );
+		if ( $plugins && is_array( $plugins ) ) {
+			$this->plugin_file = key( $plugins );
+			$this->plugin_data = $plugins[ $this->plugin_file ];
+		} else {
+			$this->echo( "Error:", "Missing plugin file.");
+		}
+		$this->echo( "Plugin file:", $this->plugin_file );
+
 	}
 
+	/**
+	 * Returns the file name of the main plugin file
+	 *
+	 * @return string
+	 */
+	function get_plugin_file_name() {
+		return $this->component . '/' . $this->plugin_file;
+	}
+
+	/**
+	 * Get the plugin's Name
+	 *
+	 * To be used for the post_title and _oikp_desc
+	 */
 	function get_plugin_name() {
 		$plugin_name = bw_array_get( $this->plugin_data, 'Name', $this->component);
 		return $plugin_name;
 	}
 
+	/**
+	 * Get's the plugin's URI
+	 */
+	function get_plugin_uri() {
+		print_r( $this->plugin_data );
+		$plugin_uri = bw_array_get( $this->plugin_data, 'PluginURI', null );
+		return $plugin_uri;
+	}
+
+	/**
+	 * Gets the plugin's short description for the first paragraph of the post_content
+	 * @return string
+	 */
 	function get_short_description() {
 		$short_description = '<p>';
 		$short_description .= bw_array_get( $this->plugin_data, 'Description', null );

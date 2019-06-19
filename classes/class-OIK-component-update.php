@@ -226,7 +226,13 @@ class OIK_component_update {
 		$zip_file = $this->target_file_name;
 		$save_dir = getcwd();
 		chdir( $repo_dir );
+		if ( $this->is_wordpress() ) {
+			rename( $repo_dir . "/wp-a2z", $repo_dir . "/wordpress" );
+		}
 		$this->do7zip_extract( $zip_file, $this->repo );
+		if ( $this->is_wordpress() ) {
+			rename( $repo_dir . "/wordpress", $repo_dir . "/wp-a2z");
+		}
 
 		chdir( $save_dir );
 	}

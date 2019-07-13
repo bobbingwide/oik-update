@@ -188,7 +188,7 @@ class OIK_wp_a2z {
 
 	function download_url_to_target( $url, $target ) {
 		$this->set_target_file_name( $target );
-		if ( file_exists( $target ) ) {
+		if ( $this->new_version !== "" && file_exists( $target ) ) {
 			$this->echo( "Download exists:", $target);
 			$error = null;
 		} else {

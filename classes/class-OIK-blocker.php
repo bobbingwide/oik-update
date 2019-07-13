@@ -287,7 +287,7 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 		$banner_filename = $this->get_asset_filename( 'banner', $this->component, $this->banner_ext );
 		$this->echo( "Banner:", $banner_filename);
 		$featured_image = get_post_thumbnail_id( $this->plugin_post->ID );
-		if ( '' === $featured_image ) {
+		if ( '' === $featured_image || 0 == $featured_image ) {
 			$featured_image = $this->create_attachment( $banner_filename, "Banner", "Banner desc", $this->plugin_post->ID );
 			$this->set_thumbnail_id( $featured_image );
 

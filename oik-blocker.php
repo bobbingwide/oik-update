@@ -4,6 +4,8 @@
  */
 
 /**
+ * oik batch process to improve the generation of blocks for a plugin listed in blocks.wp-a2z.org
+ 
  * Syntax: oikwp oik-blocker.php plugin version etc etc
  *
  * e.g.

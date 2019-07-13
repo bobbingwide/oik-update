@@ -4,6 +4,8 @@
  */
 
 /**
+ * oik batch process to improve applying API updates for WordPress, plugins or themes
+ 
  * Syntax: oikwp oik-update.php component version component_type
  *
  * e.g.

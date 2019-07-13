@@ -244,14 +244,15 @@ class OIK_component_update {
 	 * If we name the target directory then we may get the wrong output for WordPress
 	 * which should be extracted to wp-a2z
 	 *
-	 * 7z.exe e
+	 * The -y flag replies 'y' to the prompt "Would you like to replace the existing file:"
+	 *
 	 * @param $filename
+	 * @param $repo
 	 */
-
 	function do7zip_extract( $filename, $repo ) {
 
 		$cmd = '"C:\\Program Files\\7-Zip\\7z.exe"';
-		$cmd .= " x ";
+		$cmd .= " x -y ";
 		//$cmd .= "-o" . '../' . $repo;
 		$cmd .= ' "';
 		$cmd .= $filename;
@@ -305,13 +306,33 @@ class OIK_component_update {
 		$git = new Git();
 
 		$git->command( "add .");
-		$this->version_date = bw_format_date();
+		$this->get_version_date( $repo_dir );
 		$message = sprintf( '%1$s %2$s - %3$s', $this->repo, $this->new_version, $this->version_date );
 		$git->command( "commit", "-m \"$message\"" );
 		$git->command( "tag", $this->new_version );
 		// git add .
 		// git commit -m "$component $new_version - ccyy/mm/dd
 		chdir( $save_dir );
+
+	}
+
+	/**
+	 * Sets the version date for the commit comment
+	 *
+	 * We like to know the date of the version for the commit.
+	 * Using the current date is a fallback method.
+	 * Check the date on the folder?
+	 *
+	 * @param string $repo_dir - fully qualified directory name for the GitHub repo
+	 *
+	 */
+
+	function get_version_date( $repo_dir ) {
+		$this->version_date = bw_format_date();
+		// get the date of the current directory.
+		//echo filemtime( $repo_dir );
+		$this->version_date =  bw_format_date( filemtime( $repo_dir ) );
+		//gob();
 
 	}
 	/**
@@ -365,7 +386,7 @@ class OIK_component_update {
 
 	function download_url_to_target( $url, $target ) {
 		$this->set_target_file_name( $target );
-		if ( file_exists( $target ) ) {
+		if ( $this->new_version !== "" && file_exists( $target )  ) {
 			$this->echo( "Download exists:", $target);
 			$error = null;
 		} else {

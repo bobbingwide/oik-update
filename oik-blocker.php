@@ -62,7 +62,7 @@ function oik_blocker() {
 	if ( $autoloaded ) {
 		$oik_blocker = new OIK_blocker();
 		$component = oik_batch_query_value_from_argv( 1, 'unknown' );
-		$new_version = oik_batch_query_value_from_argv( 2, 'x.y.z');
+		$new_version = oik_batch_query_value_from_argv( 2, '');
 		//echo $component;
 		//echo $new_version;
 		//$component_type = oik_batch_query_value_from_argv( 3, 'plugin' );

@@ -116,6 +116,7 @@ class OIK_blocker extends OIK_wp_a2z{
 		$post['post_content'] = $this->create_plugin_content();
 		$post['post_type'] = 'oik-plugins';
 		$post['post_status'] = 'publish';
+		$_POST['post_author'] = 1;
 		$_POST['_oikp_type'] = '1';
 		$_POST['_oikp_slug'] = $this->component;
 		$_POST['_oikp_name'] = $this->get_plugin_file_name();
@@ -162,15 +163,17 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 	function create_plugin_content() {
 		//oik_require( 'admin/oik-create-blocks.php', 'oik-shortcodes');
 		$content = null;
+		$para = '<p class="has-background has-luminous-vivid-orange-background-color">Under Construction</p>';
+		$content .= $this->generate_block( "paragraph", $this->block_atts_encode( ['backgroundColor' => 'luminous-vivid-orange'] ), $para );
+		$content .= $this->generate_block( "more", null, '<!--more-->' );
+		$content .= $this->generate_block( 'shortcode', null, "[bw_plug name={$this->component} banner={$this->banner_ext}]" );
 		$placeholder = $this->block_atts_encode( [ "placeholder" => "Plugin short description"]);
 		//$this->get_plugin_data();
 		$short_description = $this->get_short_description();
 		$content .= $this->generate_block( "paragraph", $placeholder, $short_description );
 		//$content .= $this->generate_block( "more", null, '<!--more-->' );
-		$content .= $this->generate_block( 'shortcode', null, "[bw_plug name={$this->component} banner={$this->banner_ext}]" );
-		$para = '<p class="has-background has-luminous-vivid-orange-background-color">Under Construction</p>';
-		$content .= $this->generate_block( "paragraph", $this->block_atts_encode( ['backgroundColor' => 'luminous-vivid-orange'] ), $para );
-		$content .= $this->generate_block( "more", null, '<!--more-->' );
+
+
 		$atts = $this->block_atts_encode( [ 'showBatch' => 'true']);
 		$content .= $this->generate_block( "oik-block/blocklist", $atts );
 		$content .= $this->generate_block( 'shortcode', null, "[bw_plug name={$this->component} table=y]" );

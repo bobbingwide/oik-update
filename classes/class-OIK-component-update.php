@@ -304,6 +304,7 @@ class OIK_component_update {
 		$repo_dir = $this->owner . '/' . $this->repo;
 		chdir( $repo_dir );
 		$git = new Git();
+		$git->command( 'status' );
 
 		$git->command( "add .");
 		$this->get_version_date( $repo_dir );

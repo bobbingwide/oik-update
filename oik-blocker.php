@@ -94,6 +94,19 @@ function oik_blocker_query_autoload_classes( $classes ) {
 	                    "file" => "includes/class-git.php"
 
 	);
+	$classes[] = array( 'class' => 'WP_org_v12_downloads',
+	 'plugin' => 'wp-top12',
+	'path' => null,
+	'file' => 'class-wp-org-v12-downloads.php'
+	);
+
+	$classes[] = array( 'class' => 'oik_remote',
+		'plugin' => 'oik',
+		'path' => 'libs',
+		'file' => 'libs/class-oik-remote.php'
+	);
+
+
 	return( $classes );
 }
 

@@ -158,12 +158,18 @@ $template[] = [ 'core/paragraph', [ 'content' => 'This plugin provides xx blocks
 $template[] = [ 'core/more' ];
 $template[] = [ 'oik-block/blocklist' ];
 $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] ];
+
+{"prefix":"advgb","showBatch":true,"component":"advanced-gutenberg"}
 */
 
 	function create_plugin_content() {
 		//oik_require( 'admin/oik-create-blocks.php', 'oik-shortcodes');
 		$content = null;
-		$para = '<p class="has-background has-luminous-vivid-orange-background-color">Under Construction</p>';
+
+		$para = '<p class="has-background has-luminous-vivid-orange-background-color">';
+		$para .= $this->get_plugin_name();
+		$para .= " v[bw_field _component_version] delivers [bw_field _oikp_block_count] blocks. The catalogue is not yet started.";
+		$para .= '</p>';
 		$content .= $this->generate_block( "paragraph", $this->block_atts_encode( ['backgroundColor' => 'luminous-vivid-orange'] ), $para );
 		$content .= $this->generate_block( "more", null, '<!--more-->' );
 		$content .= $this->generate_block( 'shortcode', null, "[bw_plug name={$this->component} banner={$this->banner_ext}]" );
@@ -173,8 +179,8 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 		$content .= $this->generate_block( "paragraph", $placeholder, $short_description );
 		//$content .= $this->generate_block( "more", null, '<!--more-->' );
 
-
-		$atts = $this->block_atts_encode( [ 'showBatch' => 'true']);
+		$prefix = $this->get_plugin_block_prefix();
+		$atts = $this->block_atts_encode( [ 'showBatch' => 'true', 'component' => $this->component, 'prefix' => $prefix ]);
 		$content .= $this->generate_block( "oik-block/blocklist", $atts );
 		$content .= $this->generate_block( 'shortcode', null, "[bw_plug name={$this->component} table=y]" );
 
@@ -348,6 +354,15 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 		} else {
 			$this->echo( "Banner gone:", $banner_filename );
 		}
+	}
+
+	function get_plugin_block_prefix() {
+		$wpod = new WP_org_v12_downloads();
+		$wpod->get_download( $this->component );
+		$prefix = $wpod->get_block_prefix();
+		echo "Prefix: " . $prefix;
+		echo PHP_EOL;
+		return $prefix;
 	}
 
 

@@ -52,6 +52,12 @@ function identify_component_type( ) {
 
 }
 
+/**
+ * Note: autoloading will fail if the required plugins are not activated.
+ * You need: oikg
+ *
+ * @return bool
+ */
 
 function oik_update_autoload() {
 	$autloaded = false;
@@ -62,6 +68,7 @@ function oik_update_autoload() {
 		$autoloaded = true;
 	}	else {
 		bw_trace2( $lib_autoload, "oik-autoload not loaded", false );
+		$autoloaded = false;
 	}
 	return $autoloaded;
 }

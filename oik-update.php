@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright (C) Copyright Bobbing Wide 2019
+ * @copyright (C) Copyright Bobbing Wide 2019-2021
  */
 
 /**
@@ -12,6 +12,9 @@
  * oikwp oik-update.php gutenberg 5.5.0
  * oikwp oik-update.php genesis 2.10.1 theme
  * oikwp oik-update.php twentynineteen 1.9 theme url=core.wp-a2z.org
+ *
+ * oikwp oik-update.php wordpress 5.6-beta2
+ * When updating WordPress ensure you're not in the \github\bobbingwide\wp-a2z directory
  *
  */
 if ( PHP_SAPI !== 'cli' ) {
@@ -47,6 +50,9 @@ if ( PHP_SAPI !== 'cli' ) {
  *
  */
 
+function oik_update_loaded() {
+	add_action( "run_oik-update.php", "oik_update" );
+}
 
 function identify_component_type( ) {
 
@@ -107,4 +113,4 @@ function oik_update_query_autoload_classes( $classes ) {
 }
 
 
-oik_update();
+oik_update_loaded();

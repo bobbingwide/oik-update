@@ -387,6 +387,7 @@ class OIK_component_update {
 
 	function download_url_to_target( $url, $target ) {
 		$this->set_target_file_name( $target );
+		$this->echo( "New version: " . $this->new_version . " Target: " . $target );
 		if ( $this->new_version !== "" && file_exists( $target )  ) {
 			$this->echo( "Download exists:", $target);
 			$error = null;

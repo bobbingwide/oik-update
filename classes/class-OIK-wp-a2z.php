@@ -110,7 +110,7 @@ class OIK_wp_a2z {
 
 	function save_icon( $plugin, $extension="png" ) {
 		$written = false;
-		$icon = @file_get_contents( "http://ps.w.org/$plugin/assets/icon-256x256.$extension" );
+		$icon = @file_get_contents( "https://ps.w.org/$plugin/assets/icon-256x256.$extension" );
 		//echo $icon;
 		if ( $icon !== false ) {
 			$asset_filename = $this->get_asset_filename( 'icon', $plugin, $extension );
@@ -121,16 +121,22 @@ class OIK_wp_a2z {
 		return $written;
 	}
 
+	/*
+	 * https://ps.w.org/essential-blocks/assets/banner-772x250.png
+	 */
 
 	function save_banner( $plugin, $extension="png" ) {
 		$written = false;
-		$banner = @file_get_contents( "http://ps.w.org/$plugin/assets/banner-772x250.$extension" );
+		$banner = @file_get_contents( "https://ps.w.org/$plugin/assets/banner-772x250.$extension" );
 		if ( $banner !== false ) {
 			$asset_filename = $this->get_asset_filename( 'banner', $plugin, $extension );
 			$written = file_put_contents( $asset_filename, $banner );
 			//$written = file_put_contents( "c:/apache/htdocs/downloads/banners/$plugin-banner-772x250.$extension", $banner );
 			$this->echo( 'Banner bytes:', $written );
 			$this->banner_ext = $extension;
+		} else {
+			$this->echo( "Failed to download: $plugin $extension");
+
 		}
 		return $written;
 	}

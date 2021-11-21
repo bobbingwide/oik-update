@@ -110,7 +110,7 @@ class OIK_wp_a2z {
 
 	function save_icon( $plugin, $extension="png" ) {
 		$written = false;
-		$icon = @file_get_contents( "https://ps.w.org/$plugin/assets/icon-256x256.$extension" );
+		$icon = $this->curl_file_get_contents( "http://plugins.svn.wordpress.org/$plugin/assets/icon-256x256.$extension" );
 		//echo $icon;
 		if ( $icon !== false ) {
 			$asset_filename = $this->get_asset_filename( 'icon', $plugin, $extension );
@@ -121,13 +121,53 @@ class OIK_wp_a2z {
 		return $written;
 	}
 
-	/*
-	 * https://ps.w.org/essential-blocks/assets/banner-772x250.png
-	 */
+
+    function curl_file_get_contents( $url )
+    {
+        // create curl resource
+        $ch = curl_init();
+        //print_r( $ch );
+
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36';
+        curl_setopt($ch, CURLOPT_USERAGENT, $useragent);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+        //echo $output;
+
+        // also get the error and response code
+        $errors = curl_error($ch);
+        $response = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        // close curl resource to free up system resources
+        curl_close($ch);
+        if ($response !== 200) {
+
+            echo $response;
+            echo $errors;
+            //echo $output;
+            $output = false;
+        }
+
+        return $output;
+
+    }
+
+
+    /*
+     * https://ps.w.org/essential-blocks/assets/banner-772x250.png
+     *
+     * http://plugins.svn.wordpress.org"
+     */
 
 	function save_banner( $plugin, $extension="png" ) {
 		$written = false;
-		$banner = @file_get_contents( "https://ps.w.org/$plugin/assets/banner-772x250.$extension" );
+		$banner = $this->curl_file_get_contents( "http://plugins.svn.wordpress.org/$plugin/assets/banner-772x250.$extension" );
 		if ( $banner !== false ) {
 			$asset_filename = $this->get_asset_filename( 'banner', $plugin, $extension );
 			$written = file_put_contents( $asset_filename, $banner );

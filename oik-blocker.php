@@ -69,7 +69,11 @@ function oik_blocker() {
 		$oik_blocker->set_component( $component );
 		$oik_blocker->set_new_version( $new_version );
 		//$oik_blocker->set_component_type( $component_type );
-		$oik_blocker->perform_update();
+        // Don't update the plugin is new version is 'n'
+        if ( 'n' !== $new_version) {
+            $oik_blocker->perform_update();
+        }
+        $oik_blocker->process_blocks();
 	} else {
 		echo "oik-autoload not available";
 	}
@@ -105,6 +109,12 @@ function oik_blocker_query_autoload_classes( $classes ) {
 		'path' => 'libs',
 		'file' => 'libs/class-oik-remote.php'
 	);
+
+	$classes[] = array( 'class' => 'OIK_block_updater'
+        , 'plugin' => 'oik-update'
+        , 'path' => 'classes'
+        , 'file' => 'classes/class-OIK-block-updater.php'
+    );
 
 
 	return( $classes );

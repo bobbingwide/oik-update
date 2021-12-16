@@ -365,6 +365,14 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 		return $prefix;
 	}
 
+	function process_blocks() {
+	    echo "Processing blocks:" . PHP_EOL;
+	    $oik_block_updater = new OIK_block_updater();
+	    $oik_block_updater->set_plugin_info( $this->component, $this->component_type );
+	    $oik_block_updater->process_blocks();
+
+    }
+
 
 
 

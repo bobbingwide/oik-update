@@ -73,6 +73,59 @@ class OIK_themer extends OIK_wp_a2z{
         return $this->theme_info->preview_url;
     }
 
+    /**
+     * Gets the post ID of the parent theme.
+     *
+     * If this is a child theme we need the post ID of the parent theme.
+     */
+    function get_theme_template() {
+        $parent = null;
+        if (property_exists($this->theme_info, 'template')) {
+            $parent = $this->theme_info->template;
+        }
+        return $parent;
+    }
+
+    /**
+     * Returns the post ID of the parent theme.
+     *
+     * @return int|null null when it's not a child theme. 0 when parent is not registered. Otherwise post ID
+     */
+    function get_theme_template_ID() {
+        $parent_id = 0;
+        $parent = $this->get_theme_template();
+        if ( $parent ) {
+            $parent_post = oiksc_load_component($parent, $this->component_type);
+            if ( $parent_post ) {
+                $parent_id = $parent_post->ID;
+            }
+        } else {
+            $parent_id = null;
+        }
+        return $parent_id;
+    }
+
+    /**
+     * Returns the local filename for the screenshot.
+     *
+     * The screenshot may be a .png or .jpg file
+     * so we need to find the basename from screenshot_url
+     * 
+     * @return string
+     */
+    function get_screenshot_filename() {
+        $filename = parse_url( $this->theme_info->screenshot_url, PHP_URL_PATH );
+        $basename = basename( $filename );
+
+        $screenshot_filename = WP_CONTENT_DIR;
+        $screenshot_filename .= '/themes/';
+        $screenshot_filename .= $this->component;
+        $screenshot_filename .= '/';
+        $screenshot_filename .= $basename;
+
+        return $screenshot_filename;
+    }
+
 
     function download_theme_version() {
         $oik_component_update = new OIK_component_update();
@@ -140,7 +193,9 @@ class OIK_themer extends OIK_wp_a2z{
         }
 
         if ( $this->theme_post ) {
-            $this->update_featured_image();
+
+            $screenshot_filename = $this->get_screenshot_filename();
+            $this->update_featured_image( $this->theme_post->ID, $screenshot_filename, "Screenshot", "Screenshot for " . $this->theme_post->post_title );
         }
     }
 
@@ -158,6 +213,11 @@ class OIK_themer extends OIK_wp_a2z{
         $_POST['_oikth_slug'] = $this->component;
         $_POST['_oikth_desc'] = $this->get_theme_description();
         $_POST['_oikth_demo'] = $this->get_theme_preview_url();
+        $_POST['_oikth_template'] = $this->get_theme_template_ID();
+
+        // Yoast SEO post meta data
+        $_POST['_yoast_wpseo_focuskw'] = $this->get_theme_name() . ' WordPress Full Site Editing theme';
+        $_POST['_yoast_wpseo_metadesc'] = $this->get_theme_name() . ' is a WordPress Full Site Editing theme.';
         //print_r( $post );
         //print_r( $_POST );
         //gob();
@@ -188,32 +248,14 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
         $content = null;
         $content = $this->generate_block( "paragraph", null, $this->get_theme_description() );
         $content .= $this->generate_block( "more", null, '<!--more-->' );
-
-
+        $content .= $this->generate_block( 'post-featured-image', null, null);
        return $content;
     }
 
-    function block_atts_encode( $atts ) {
-        $block_atts = json_encode( $atts, JSON_UNESCAPED_SLASHES );
-        return $block_atts;
+    function alter_oik_theme() {
+
     }
 
-    function generate_block( $block_type_name, $atts=null, $content=null ) {
-        $block = "<!-- wp:$block_type_name ";
-        if ( $atts ) {
-            $block .= $atts;
-            $block .= " ";
-        }
-        $block .= "-->";
-        $block .= "\n";
-        if ( $content ) {
-            $block .= $content;
-            $block .= "\n";
-        }
-        $block .= "<!-- /wp:$block_type_name -->";
-        $block .= "\n\n";
-        return $block;
-    }
 
 
 

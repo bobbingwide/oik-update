@@ -104,7 +104,8 @@ class OIK_blocker extends OIK_wp_a2z{
 		}
 
 		if ( $this->plugin_post ) {
-			$this->update_featured_image();
+            $banner_filename = $this->get_asset_filename( 'banner', $this->component, $this->banner_ext );
+            $this->update_featured_image( $this->plugin_post->ID, $banner_filename, "Banner", "Banner description");
 		}
 	}
 

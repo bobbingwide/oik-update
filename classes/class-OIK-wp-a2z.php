@@ -299,22 +299,20 @@ class OIK_wp_a2z {
      * $attached_file = C:\apache\htdocs\wp-a2z/wp-content/uploads/sites/10/2019/03/block-gallery-banner-772x250-2.png
      */
 
-    function update_featured_image() {
+    function update_featured_image( $post_id, $featured_image_filename, $title, $title_desc ) {
         include_once ABSPATH . 'wp-admin/includes/image.php';
-        $banner_filename = $this->get_asset_filename( 'banner', $this->component, $this->banner_ext );
-        $this->echo( "Banner:", $banner_filename);
-        $featured_image = get_post_thumbnail_id( $this->plugin_post->ID );
+
+        $this->echo( "$title:", $featured_image_filename);
+        $featured_image = get_post_thumbnail_id( $post_id );
         if ( '' === $featured_image || 0 == $featured_image ) {
-            $featured_image = $this->create_attachment( $banner_filename, "Banner", "Banner desc", $this->plugin_post->ID );
-            $this->set_thumbnail_id( $featured_image );
+            $featured_image = $this->create_attachment( $featured_image_filename, $title, $title_desc, $post_id );
+            $this->set_thumbnail_id( $post_id, $featured_image );
 
         } else {
             $this->echo( 'Featured:', $featured_image );
             $attached_file = get_attached_file( $featured_image, true );
-            $this->maybe_replace_featured_image( $banner_filename, $attached_file );
-
+            $this->maybe_replace_featured_image( $featured_image_filename, $attached_file );
         }
-        //$this->set_thumbnail_id( $featured_image );
     }
 
     /**
@@ -351,8 +349,8 @@ class OIK_wp_a2z {
         return $tmp_name;
     }
 
-    function set_thumbnail_id( $featured_image ) {
-        update_post_meta( $this->plugin_post->ID, "_thumbnail_id", $featured_image );
+    function set_thumbnail_id( $post_id, $featured_image ) {
+        update_post_meta( $post_id, "_thumbnail_id", $featured_image );
     }
 
     function maybe_replace_featured_image( $banner_filename, $attached_file ) {

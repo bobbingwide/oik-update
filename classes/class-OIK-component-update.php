@@ -15,6 +15,8 @@ class OIK_component_update {
 	public $new_version; // New version of the WordPress component to download and update to
 	public $target_file_name; // File name of the target .zip file
 
+    private $target_dir;
+
 	function __construct() {
 		$this->set_owner();
 		$this->set_repo();
@@ -23,6 +25,7 @@ class OIK_component_update {
 		$this->set_current_version();
 		$this->set_new_version();
 		$this->set_target_file_name();
+		$this->set_target_dir();
 	}
 
 	function set_owner( $owner=null ) {
@@ -52,6 +55,18 @@ class OIK_component_update {
 	function set_target_file_name( $target=null ) {
 		$this->target_file_name = $target;
 	}
+
+	function set_target_dir() {
+	    if ( PHP_OS == "WINNT" ) {
+	        $this->target_dir = 'C:/apache/htdocs/downloads/';
+        } else {
+	        $this->target_dir = ABSPATH . '/downloads/';
+        }
+    }
+
+    function get_target_dir( $subdir=null ) {
+	    return $this->target_dir . $subdir;
+    }
 
 	/**
 	 * Performs the update
@@ -350,7 +365,8 @@ class OIK_component_update {
 
 		$url  = 'https://wordpress.org/';
 		$url .= $filename;
-		$target  = 'C:/apache/htdocs/downloads/wordpress/';
+		$target  = $this->get_target_dir( 'wordpress');
+		$target .= '/';
 		$target .= $filename;
 		$error = $this->download_url_to_target( $url, $target );
 		return $error;
@@ -368,7 +384,9 @@ class OIK_component_update {
 
 		$url  = 'https://downloads.wordpress.org/plugin/';
 		$url .= $filename;
-		$target  = 'C:/apache/htdocs/downloads/plugins/';
+		//$target  = 'C:/apache/htdocs/downloads/plugins/';
+        $target  = $this->get_target_dir( 'plugins');
+        $target .= '/';
 		$target .= $filename;
 		$error = $this->download_url_to_target( $url, $target );
 		return $error;
@@ -414,16 +432,14 @@ class OIK_component_update {
 	 *  https://downloads.wordpress.org/theme/twentynineteen.1.4.zip
 	 */
 	function download_theme_version() {
-
 		$filename = $this->get_zip_file_name();
-
 		$url  = 'https://downloads.wordpress.org/theme/';
 		$url .= $filename;
-		$target  = 'C:/apache/htdocs/downloads/themes/';
+        $target  = $this->get_target_dir( 'themes');
+        $target .= '/';
 		$target .= $filename;
 		$error = $this->download_url_to_target( $url, $target );
 		return $error;
-
 	}
 
 	function get_zip_file_name( $sep='.') {
@@ -432,9 +448,6 @@ class OIK_component_update {
 		$filename .= $this->new_version;
 		$filename .= '.zip';
 		return $filename;
-
 	}
-
-
 
 }

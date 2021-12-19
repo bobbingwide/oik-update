@@ -59,7 +59,7 @@ class OIK_themer extends OIK_wp_a2z{
                 echo "Error: no information for theme: " . $this->component;
             } else {
                 $wpodt->save_theme_info($this->component, $this->theme_info);
-                $this->theme_info = $wpodt->get_theme( $this->component );
+                //$this->theme_info = $wpodt->get_theme( $this->component );
             }
         }
         print_r( $this->theme_info );
@@ -179,7 +179,9 @@ class OIK_themer extends OIK_wp_a2z{
      */
     function update_installed_theme() {
         //$zip_file = $this->target_file_name;
-        include_once( ABSPATH . 'wp-admin/includes/file.php' );
+        if ( !function_exists( 'get_file_description')) {
+            include_once(ABSPATH . 'wp-admin/includes/file.php');
+        }
         include_once( ABSPATH . 'wp-admin/includes/misc.php' );
         include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
         $upgrader = new Theme_Upgrader();

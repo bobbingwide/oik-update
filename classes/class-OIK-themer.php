@@ -53,6 +53,16 @@ class OIK_themer extends OIK_wp_a2z{
         echo $this->component;
 
         $this->theme_info = $wpodt->get_theme( $this->component );
+        if ( null === $this->theme_info ) {
+            $this->theme_info = $wpodt->get_download( $this->component );
+            if ( null === $this->theme_info ) {
+                echo "Error: no information for theme: " . $this->component;
+            } else {
+                $wpodt->save_theme_info($this->component, $this->theme_info);
+                $this->theme_info = $wpodt->get_theme( $this->component );
+            }
+        }
+        print_r( $this->theme_info );
         $this->set_new_version( $this->theme_info->version );
         echo "Theme info: ";
         print_r( $this->theme_info );
@@ -110,7 +120,7 @@ class OIK_themer extends OIK_wp_a2z{
      *
      * The screenshot may be a .png or .jpg file
      * so we need to find the basename from screenshot_url
-     * 
+     *
      * @return string
      */
     function get_screenshot_filename() {

@@ -89,12 +89,15 @@ class OIK_block_updater
      * @param $file
      */
     function process_block( $file ) {
-        //echo $file . PHP_EOL;
+        echo $file . PHP_EOL;
         $contents = file_get_contents( $file );
         $block = json_decode( $contents );
-        // print_r( $contents );
+        //print_r( $block );
+        //gob();
         echo $block->name . PHP_EOL;
-        echo $block->title . PHP_EOL;
+        if ( isset( $block->title )) {
+            echo $block->title . PHP_EOL;
+        }
         $this->populate_request( $block );
         oiksc_lazy_create_or_update_block();
         bw_flush();

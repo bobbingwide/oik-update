@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright (C) Copyright Bobbing Wide 2019
+ * @copyright (C) Copyright Bobbing Wide 2019, 2022
  */
 
 /**
@@ -11,6 +11,7 @@
  * e.g.
  * oikwp oik-blocker.php gutenberg 5.7.0 url=blocks.wp.a2z
  * oikwp oik-blocker.php oik-blocks 0.4.0-alpha-20190516 url=blocks.wp.a2z
+ * oikwp oik-blocker.php oik v4.8.0 url=s.b/oikcom
  *
  */
 if ( PHP_SAPI !== 'cli' ) {
@@ -57,6 +58,14 @@ function oik_blocker_autoload() {
 }
 
 
+function oik_blocker_component_is_git_repo( $component ) {
+	$path = oik_path( null, $component );
+	$path = untrailingslashit( $path );
+	$git = new Git();
+	$is_git_repo = $git->has_dot_git( $path );
+	return $is_git_repo;
+}
+
 function oik_blocker() {
 	$autoloaded = oik_blocker_autoload();
 	if ( $autoloaded ) {
@@ -69,10 +78,13 @@ function oik_blocker() {
 		$oik_blocker->set_component( $component );
 		$oik_blocker->set_new_version( $new_version );
 		//$oik_blocker->set_component_type( $component_type );
+		// Don't update the plugin if it's a git repo.
         // Don't update the plugin is new version is 'n'
-        if ( 'n' !== $new_version) {
-            $oik_blocker->perform_update();
-        }
+		if ( false === oik_blocker_component_is_git_repo( $component )) {
+			if ( 'n' !== $new_version ) {
+				$oik_blocker->perform_update();
+			}
+		}
         $oik_blocker->process_blocks();
 	} else {
 		echo "oik-autoload not available";

@@ -57,12 +57,19 @@ function oik_blocker_autoload() {
 	return $autoloaded;
 }
 
-
+/**
+ * Checks if the component is a Git repository.
+ *
+ * @param string $component the name of the component ( plugin ).
+ * @return bool true if it's a Git repository
+ *
+ */
 function oik_blocker_component_is_git_repo( $component ) {
 	$path = oik_path( null, $component );
 	$path = untrailingslashit( $path );
 	$git = new Git();
-	$is_git_repo = $git->has_dot_git( $path );
+	$has_dot_git = $git->has_dot_git( $path );
+	$is_git_repo = $has_dot_git !== null;
 	return $is_git_repo;
 }
 
@@ -72,23 +79,42 @@ function oik_blocker() {
 		$oik_blocker = new OIK_blocker();
 		$component = oik_batch_query_value_from_argv( 1, 'unknown' );
 		$new_version = oik_batch_query_value_from_argv( 2, '');
-		//echo $component;
-		//echo $new_version;
-		//$component_type = oik_batch_query_value_from_argv( 3, 'plugin' );
-		$oik_blocker->set_component( $component );
-		$oik_blocker->set_new_version( $new_version );
-		//$oik_blocker->set_component_type( $component_type );
-		// Don't update the plugin if it's a git repo.
-        // Don't update the plugin is new version is 'n'
-		if ( false === oik_blocker_component_is_git_repo( $component )) {
-			if ( 'n' !== $new_version ) {
-				$oik_blocker->perform_update();
-			}
+		if ( $component !== 'unknown') {
+			oik_blocker_update_component_version( $oik_blocker, $component, $new_version );
+		} else {
+			oik_blocker_update_components_that_need_it();
 		}
-        $oik_blocker->process_blocks();
 	} else {
 		echo "oik-autoload not available";
 	}
+}
+
+function oik_blocker_update_component_version( $oik_blocker, $component, $new_version ) {
+	echo "Component:" .  $component;
+	echo "New version: " .
+
+	     $new_version;
+	//$component_type = oik_batch_query_value_from_argv( 3, 'plugin' );
+	$oik_blocker->set_component( $component );
+	$oik_blocker->set_new_version( $new_version );
+	//$oik_blocker->set_component_type( $component_type );
+	// Don't update the plugin if it's a git repo.
+	// Don't update the plugin is new version is 'n'
+	if ( false === oik_blocker_component_is_git_repo( $component )) {
+		if ( 'n' !== $new_version ) {
+			$oik_blocker->perform_update();
+		} else {
+			gob();
+		}
+	} else {
+		echo "Component is a Git repo: " . $component;
+	}
+	$oik_blocker->process_blocks();
+
+}
+
+function oik_blocker_update_components_that_need_it() {
+	gob();
 }
 
 function oik_blocker_query_autoload_classes( $classes ) {

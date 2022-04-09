@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright (C) Copyright Bobbing Wide 2019
+ * @copyright (C) Copyright Bobbing Wide 2019, 2022
  *
  * @package oik-update
  */
@@ -70,13 +70,13 @@ class OIK_blocker extends OIK_wp_a2z{
 	}
 
 	/**
-	 * Updates the installed plugin
+	 * Updates the installed plugin.
+	 *
 	 * Basically we just want to update the plugin from the download folder
 	 * @TODO There should be no need to do this multiple times!
 	 * We should check the currently active version.
 	 * This can be done using the virtual field.
 	 */
-
 	function update_installed_plugin() {
 		//$repo_dir = WP_PLUGIN_DIR;
 		$zip_file = $this->target_file_name;
@@ -105,7 +105,18 @@ class OIK_blocker extends OIK_wp_a2z{
 
 		if ( $this->plugin_post ) {
             $banner_filename = $this->get_asset_filename( 'banner', $this->component, $this->banner_ext );
-            $this->update_featured_image( $this->plugin_post->ID, $banner_filename, "Banner", "Banner description");
+            if ( file_exists( $banner_filename )) {
+            	$this->update_featured_image( $this->plugin_post->ID, $banner_filename, "Banner", "Banner description" );
+            	//$banner_filename = $this->get_asset_filename( 'banner', 'no', 'webp');
+            } else {
+            	$this->set_thumbnail_id( $this->plugin_post->ID, 10243);
+            	/* Don't upload an icon file. It's the wrong shape.
+	            $icon_filename=$this->get_asset_filename( 'icon', $this->component, 'png' );
+	            if ( file_exists( $icon_filename ) ) {
+		            $this->update_featured_image( $this->plugin_post->ID, $icon_filename, "Icon", "Icon description" );
+	            }
+            	*/
+            }
 		}
 	}
 
@@ -143,6 +154,11 @@ class OIK_blocker extends OIK_wp_a2z{
 			$this->plugin_post->post_content = $this->create_plugin_content();
 			//print_r( $this->plugin_post );
 			wp_insert_post( $this->plugin_post );
+		} else {
+			$post_arr = [];
+			$post_arr['ID'] = $this->plugin_post->ID;
+			$post_arr['post_title'] = $this->plugin_post->post_title;
+			wp_update_post( $post_arr);
 		}
 	}
 
@@ -173,7 +189,8 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 		$para .= '</p>';
 		$content .= $this->generate_block( "paragraph", $this->block_atts_encode( ['backgroundColor' => 'luminous-vivid-orange'] ), $para );
 		$content .= $this->generate_block( "more", null, '<!--more-->' );
-		$content .= $this->generate_block( 'shortcode', null, "[bw_plug name={$this->component} banner={$this->banner_ext}]" );
+		$content .= $this->generate_block( 'post-featured-image' );
+		//$content .= $this->generate_block( 'shortcode', null, "[bw_plug name={$this->component} banner={$this->banner_ext}]" );
 		$placeholder = $this->block_atts_encode( [ "placeholder" => "Plugin short description"]);
 		//$this->get_plugin_data();
 		$short_description = $this->get_short_description();

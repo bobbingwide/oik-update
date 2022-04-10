@@ -82,7 +82,7 @@ function oik_blocker() {
 		if ( $component !== 'unknown') {
 			oik_blocker_update_component_version( $oik_blocker, $component, $new_version );
 		} else {
-			oik_blocker_update_components_that_need_it();
+			oik_blocker_update_components_that_need_it( $oik_blocker );
 		}
 	} else {
 		echo "oik-autoload not available";
@@ -91,15 +91,14 @@ function oik_blocker() {
 
 function oik_blocker_update_component_version( $oik_blocker, $component, $new_version ) {
 	echo "Component:" .  $component;
-	echo "New version: " .
-
-	     $new_version;
+	echo "New version: " .  $new_version;
+	echo PHP_EOL;
 	//$component_type = oik_batch_query_value_from_argv( 3, 'plugin' );
 	$oik_blocker->set_component( $component );
 	$oik_blocker->set_new_version( $new_version );
-	//$oik_blocker->set_component_type( $component_type );
+	// $oik_blocker->set_component_type( $component_type );
 	// Don't update the plugin if it's a git repo.
-	// Don't update the plugin is new version is 'n'
+	// Don't update the plugin if new version is 'n'
 	if ( false === oik_blocker_component_is_git_repo( $component )) {
 		if ( 'n' !== $new_version ) {
 			$oik_blocker->perform_update();
@@ -113,8 +112,28 @@ function oik_blocker_update_component_version( $oik_blocker, $component, $new_ve
 
 }
 
-function oik_blocker_update_components_that_need_it() {
-	gob();
+/**
+ * Processes all plugins that have updates available.
+ *
+ * @TODO get_site_transient() may appear to return nothing.
+ * This occurs when the transient expires. When this happens the plugins need to be rechecked.
+ *
+ * When we're updating existing plugins we don't create the oik-plugin entry if it's not there.
+ * This allows for non-block plugins that need updating.
+ */
+function oik_blocker_update_components_that_need_it( $oik_blocker ) {
+	$oik_blocker->set_create_plugin( false );
+	$option = get_site_transient( "update_plugins" );
+	//print_r( $option );
+	if ( $option && is_array( $option->response ) ) {
+		foreach ( $option->response as $plugin => $plugin_info ) {
+			//echo $plugin_info->slug;
+			//echo ' ';
+			//echo $plugin_info->new_version;
+			//echo PHP_EOL;
+			oik_blocker_update_component_version( $oik_blocker, $plugin_info->slug, $plugin_info->new_version );
+		}
+	}
 }
 
 function oik_blocker_query_autoload_classes( $classes ) {

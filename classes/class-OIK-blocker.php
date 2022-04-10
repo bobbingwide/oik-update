@@ -18,9 +18,12 @@ class OIK_blocker extends OIK_wp_a2z{
 	public $plugin_data = null; /* From the main plugin file */
 	public $plugin_file = null; /* e.g. oik.php - basename ( second half ) of oik/oik.php for _oikp_name */
 
+	private $create_plugin = true;
+
 	function __construct() {
 		parent::__construct();
 		$this->set_component_type( 'plugin');
+		$this->set_create_plugin();
 
 	}
 
@@ -47,6 +50,10 @@ class OIK_blocker extends OIK_wp_a2z{
 		$this->new_version = $new_version;
 	}
 
+	function set_create_plugin( $create_plugin=true ) {
+		$this->create_plugin = $create_plugin;
+	}
+
 
 	/**
 	 * Applies updates for a new plugin version
@@ -56,9 +63,6 @@ class OIK_blocker extends OIK_wp_a2z{
 	 * - Update the installed plugin to the new version
 	 * - Update the oik_plugin, replacing the featured image
 	 */
-
-
-
 	function perform_update() {
 		$this->echo( "Component:", $this->component );
 		$this->echo( "New version:", $this->new_version );
@@ -72,7 +76,8 @@ class OIK_blocker extends OIK_wp_a2z{
 	/**
 	 * Updates the installed plugin.
 	 *
-	 * Basically we just want to update the plugin from the download folder
+	 * Basically we just want to update the plugin from the download folder.
+	 *
 	 * @TODO There should be no need to do this multiple times!
 	 * We should check the currently active version.
 	 * This can be done using the virtual field.
@@ -80,9 +85,9 @@ class OIK_blocker extends OIK_wp_a2z{
 	function update_installed_plugin() {
 		//$repo_dir = WP_PLUGIN_DIR;
 		$zip_file = $this->target_file_name;
-		include( ABSPATH . 'wp-admin/includes/file.php' );
-		include( ABSPATH . 'wp-admin/includes/misc.php' );
-		include( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/misc.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		$upgrader = new Plugin_Upgrader();
 		$upgraded = $upgrader->install( $zip_file );
 	}
@@ -96,7 +101,9 @@ class OIK_blocker extends OIK_wp_a2z{
 		$this->plugin_post = oiksc_load_component( $this->component, $this->component_type );
 		//print_r( $plugin_post );
 		if ( null === $this->plugin_post ) {
-			$this->create_oik_plugin();
+			if ( $this->create_plugin ) {
+				$this->create_oik_plugin();
+			}
 		} else {
 			$this->echo( "ID:", $this->plugin_post->ID );
 			$this->echo( 'Title:', $this->plugin_post->post_title );

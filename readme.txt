@@ -3,8 +3,8 @@ Contributors: bobbingwide, vsgloik
 Donate link: https://www.oik-plugins.com/oik/oik-donate/
 Tags: oik, plugin, update, WP-a2z, blocks, themes, APIs
 Requires at least: 5.8.1
-Tested up to: 5.9-beta3
-Stable tag: 1.0.0
+Tested up to: 5.9.3
+Stable tag: 1.1.0
 
 oik-batch routines to semiautomate the process of updating
 
@@ -17,7 +17,7 @@ oik-batch routines to semiautomate the process of updating
 == Description ==
 oik-update provides three batch routines which are invoked by oik-batch.
 
-- oik-blocker.php to improve the generation of blocks for a plugin listed in blocks.wp-a2z.org
+- oik-blocker.php to improve the generation of blocks for plugins listed in blocks.wp-a2z.org
 - oik-themer.php to improve the registration of FSE themes listed in blocks.wp-a2z.org
 - oik-update.php to improve applying API updates for WordPress, plugins or themes
 
@@ -44,25 +44,24 @@ Dependent upon:
 None
 
 == Upgrade Notice ==
-= 1.0.0 = 
-Upgrade for oik-themer.php and improvements to oik-blocker.php
-
+= 1.1.0 = 
+Upgrade for improvements to oik-blocker.php. 
 
 == Changelog ==
-= 1.0.0 =
-* Added: Add logic to generate blocks from block.json files #2
-* Added: Add oik-themer.php for FSE themes #4
-* Changed: Add logic to set featured image, template and some Yoast SEO metadata #4
-* Changed: Improve methods for setting the featured image #4
-* Changed: Promote some methods to OIK_wp_a2z from OIK_blocker #4
-* Tested: With WordPress 5.9-beta2 and beta3
+= 1.1.0 = 
+* Added: Implement batch update loop for plugins and their blocks #2
+* Changed: Enable oik-blocker for running on live ( blocks.wp-a2z.org ) #2
+* Changed: Add support for automatic updates. Don't create oik-plugins when doing this. #2
+* Changed: Don't download updates to Git repos. #2
+* Changed: Improve featured image setting. Update oik-plugin for each plugin update #2
+* Changed: oik-blocker: Don't fetch plugins which are Git repos #2
+* Added: Add oik-block-rename.php to rename core-embed blocks to core/embed variations #5
+* Changed: Attempt to deal with Jetpack already loading file.php. Don't call get_theme() after fetch and save
+* Fixed: Change include to include_once #4
+* Changed: Add set_target_dir() and get_target_dir() to allow for different environments #4
+* Changed: Load theme info from WordPress.org if not available locally #4
+* Tested: With WordPress 5.9.3 and WordPress Multi Site
 * Tested: With PHP 8.0
-
-
-Some previous versions were tagged the same as WordPress releases.
-I'm not quite sure why I did this. 
-I've removed the tags but not changed the commit messages.
-
 
 == Further reading ==
 

@@ -149,6 +149,7 @@ class OIK_wp_a2z {
         if ($response !== 200) {
 
             echo $response;
+            echo ' ';
             echo $errors;
             //echo $output;
             $output = false;
@@ -181,8 +182,30 @@ class OIK_wp_a2z {
 		return $written;
 	}
 
+	/**
+	 * Return the root directory for downloads.
+	 *
+	 * The directory is expected to exist.
+	 *
+	 * @return string
+	 */
+	function get_downloads_path() {
+		$downloads_path = ( PHP_OS == "WINNT" ) ? 'C:/apache/htdocs/downloads/' : ABSPATH . '/downloads/';
+		return $downloads_path;
+	}
+
+	/**
+	 * Gets the asset filename.
+	 *
+	 * @param $type
+	 * @param $plugin
+	 * @param $extension
+	 *
+	 * @return string
+	 */
+
 	function get_asset_filename( $type, $plugin, $extension) {
-		$asset_filename = 'c:/apache/htdocs/downloads/';
+		$asset_filename = $this->get_downloads_path();
 		$asset_filename .= $type . 's/';
 		$asset_filename .= $plugin;
 		if ( $type === 'banner') {
@@ -205,7 +228,9 @@ class OIK_wp_a2z {
 
 		$url  = 'https://downloads.wordpress.org/plugin/';
 		$url .= $filename;
-		$target  = 'C:/apache/htdocs/downloads/plugins/';
+		//$target  = 'C:/apache/htdocs/downloads/plugins/';
+		$target = $this->get_downloads_path();
+		$target .= 'plugins/';
 		$target .= $filename;
 		$error = $this->download_url_to_target( $url, $target );
 		return $error;
@@ -301,6 +326,7 @@ class OIK_wp_a2z {
 
     function update_featured_image( $post_id, $featured_image_filename, $title, $title_desc ) {
         include_once ABSPATH . 'wp-admin/includes/image.php';
+        include_once ABSPATH . 'wp-admin/includes/media.php';
 
         $this->echo( "$title:", $featured_image_filename);
         $featured_image = get_post_thumbnail_id( $post_id );
@@ -330,7 +356,7 @@ class OIK_wp_a2z {
         $file_array['name'] = basename( $file );
 
         bw_trace2( $file_array );
-        include ABSPATH  . 'wp-admin/includes/media.php';
+        include_once ABSPATH  . 'wp-admin/includes/media.php';
         $id = media_handle_sideload( $file_array, $post_id, $desc );
         if ( is_wp_error( $id ) ) {
             bw_trace2( $id );

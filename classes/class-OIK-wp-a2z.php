@@ -375,7 +375,19 @@ class OIK_wp_a2z {
         return $tmp_name;
     }
 
-    function set_thumbnail_id( $post_id, $featured_image ) {
+	/**
+	 * Sets the thumbnail ID for the post.
+	 *
+	 * If null then the value is the default image.
+	 * In blocks.wp.a2z this is 10243, which cloned to blocks.wp-a2z.org as 4019.
+	 *
+	 * @param $post_id
+	 * @param null $featured_image
+	 */
+    function set_thumbnail_id( $post_id, $featured_image=null ) {
+    	if ( null === $featured_image ) {
+    		$featured_image = ( PHP_OS === 'WINNT' ) ? 10243 : 4019;
+	    }
         update_post_meta( $post_id, "_thumbnail_id", $featured_image );
     }
 
@@ -387,9 +399,5 @@ class OIK_wp_a2z {
             $this->echo( "Banner gone:", $banner_filename );
         }
     }
-
-
-
-
 
 }

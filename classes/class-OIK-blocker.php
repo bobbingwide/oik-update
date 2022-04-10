@@ -116,7 +116,7 @@ class OIK_blocker extends OIK_wp_a2z{
             	$this->update_featured_image( $this->plugin_post->ID, $banner_filename, "Banner", "Banner description" );
             	//$banner_filename = $this->get_asset_filename( 'banner', 'no', 'webp');
             } else {
-            	$this->set_thumbnail_id( $this->plugin_post->ID, 10243);
+            	$this->set_thumbnail_id( $this->plugin_post->ID);
             	/* Don't upload an icon file. It's the wrong shape.
 	            $icon_filename=$this->get_asset_filename( 'icon', $this->component, 'png' );
 	            if ( file_exists( $icon_filename ) ) {

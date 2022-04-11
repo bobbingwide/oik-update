@@ -62,7 +62,7 @@ class OIK_themer extends OIK_wp_a2z{
                 //$this->theme_info = $wpodt->get_theme( $this->component );
             }
         }
-        print_r( $this->theme_info );
+        //print_r( $this->theme_info );
         $this->set_new_version( $this->theme_info->version );
         echo "Theme info: ";
         print_r( $this->theme_info );
@@ -74,7 +74,7 @@ class OIK_themer extends OIK_wp_a2z{
     }
 
     function get_theme_description() {
-        print_r( $this->theme_info );
+        //print_r( $this->theme_info );
 
         return $this->theme_info->sections->description;
     }
@@ -274,6 +274,25 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 	    //print_r( $this->theme_info );
 	    //gob();
 	    wp_update_post( $post_arr );
+
+    }
+
+	/**
+	 * Returns the new version of the theme, if necessary.
+	 *
+	 * @param $theme_info
+	 */
+    function is_new_version( $theme_info ) {
+        $new_version = $theme_info->version;
+    	//print_r( $theme_info );
+    	$theme = wp_get_theme( $theme_info->slug );
+    	//print_r( $theme );
+    	if ( $theme ) {
+    	    if ( version_compare(  $new_version, $theme->Version, 'le' ) ) {
+		        $new_version= null;
+	        }
+        }
+    	return $new_version;
 
     }
 

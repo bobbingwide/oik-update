@@ -265,6 +265,15 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
     }
 
     function alter_oik_theme() {
+    	$post_arr = [];
+    	$post_arr['ID'] = $this->theme_post->ID;
+    	$post_arr['post_title'] = $this->theme_post->post_title;
+    	// Can we control what this gets set to?
+    	$post_arr['modified'] = $this->theme_info->last_updated_time;
+	    //print_r( $this->theme_post );
+	    //print_r( $this->theme_info );
+	    //gob();
+	    wp_update_post( $post_arr );
 
     }
 

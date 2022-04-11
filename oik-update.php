@@ -1,7 +1,7 @@
 <?php
 /**
  * @copyright (C) Copyright Bobbing Wide 2019-2022
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 /**

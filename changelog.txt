@@ -1,4 +1,8 @@
 == Upgrade Notice ==
+
+= 1.2.0 =
+Upgrade for improvements to oik-themer.php
+
 = 1.1.0 = 
 Upgrade for improvements to oik-blocker.php. 
 
@@ -7,6 +11,15 @@ Upgrade for oik-themer.php and improvements to oik-blocker.php
 
 
 == Changelog ==
+
+= 1.2.0 =
+* Changed: Add preview_theme() #4
+* Changed: Implement update for components that need it #4
+* Changed: Add is_new_version() method #4
+* Changed: Add some logic to actually update the oik-theme post #4
+* Changed: Start to implement auto updates #4
+* Changed: Set default featured image for environment #2
+
 = 1.1.0 = 
 * Added: Implement batch update loop for plugins and their blocks #2
 * Changed: Enable oik-blocker for running on live ( blocks.wp-a2z.org ) #2

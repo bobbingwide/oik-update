@@ -169,19 +169,32 @@ function oik_themer_update_component_version( $oik_themer, $component, $new_vers
  *
  */
 function oik_themer_update_components_that_need_it( $oik_themer ) {
-	gob();
-	//$oik_blocker->set_create_plugin( false );
-	//print_r( $option );
-	if ( $option && is_array( $option->response ) ) {
-		foreach ( $option->response as $plugin => $plugin_info ) {
-			//echo $plugin_info->slug;
-			//echo ' ';
-			//echo $plugin_info->new_version;
-			//echo PHP_EOL;
-			oik_themer_update_component_version( $oik_themer, $theme, $new_version );
+	$wpodt = new WP_org_downloads_themes();
+    if ( null === $wpodt ) {
+	        gob();
+    }
+    $wpodt->maybe_query_all_themes();
+    $wpodt->load_all_themes();
+    $themes = $wpodt->get_fse_themes();
+    //print_r( $themes );
+    if ( $themes && count( $themes )) {
+		foreach ( $themes as $theme => $theme_info ) {
+
+			echo $theme;
+			// Only update themes which have new versions.
+			//
+			$new_version = $oik_themer->is_new_version( $theme_info  );
+			if ( $new_version ) {
+				echo " ";
+				echo $new_version;
+				echo PHP_EOL;
+				//$new_version = $theme_info->version;
+				oik_themer_update_component_version( $oik_themer, $theme, $new_version );
+			} else {
+				echo PHP_EOL;
+			}
 		}
 	}
 }
-
 
 oik_themer();

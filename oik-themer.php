@@ -1,16 +1,18 @@
 <?php
 /**
- * @copyright (C) Copyright Bobbing Wide 2021
+ * @copyright (C) Copyright Bobbing Wide 2021, 2022
  * @package oik-update
  */
 
 /**
  * oik batch process to improve the registration of FSE themes listed in blocks.wp-a2z.org
 
- * Syntax: oikwp oik-themer.php theme
+ * Syntax: oikwp oik-themer.php [theme]
  *
  * e.g.
  * oikwp oik-themer.php slug url=blocks.wp.a2z
+ *
+ * oikwp oik-themer.php url=blocks.wp.a2z
  *
  */
 if ( PHP_SAPI !== 'cli' ) {
@@ -99,34 +101,87 @@ function oik_themer_query_autoload_classes( $classes ) {
     return( $classes );
 }
 
+/**
+ * Checks if the component is a Git repository.
+ *
+ * @param string $component the name of the component ( plugin ).
+ * @return bool true if it's a Git repository
+ *
+ */
+function oik_themer_component_is_git_repo( $component ) {
+	// oik_path assumes it's a plugin!
+	//$path = oik_path( null, $component );
+	//$path = untrailingslashit( $path );
+	$path = get_theme_root() . '/' .  $component;
+	echo $path;
+	$git = new Git();
+	$has_dot_git = $git->has_dot_git( $path );
+	$is_git_repo = $has_dot_git !== null;
+	return $is_git_repo;
+}
+
+
+/**
+ * Updates a single theme or does the lot.
+ */
 function oik_themer() {
     $autoloaded = oik_themer_autoload();
     if ( $autoloaded ) {
         $oik_themer = new OIK_themer();
         $component = oik_batch_query_value_from_argv( 1, 'unknown' );
         $new_version = oik_batch_query_value_from_argv( 2, '');
-        //echo $component;
-        //echo $new_version;
-        //$component_type = oik_batch_query_value_from_argv( 3, 'plugin' );
-        $oik_themer->set_component( $component );
-        $oik_themer->get_theme_info();
-        //$oik_themer->set_new_version( $new_version );
-        //$oik_themer->set_component_type( $component_type );
-        // Don't update the theme if new version is 'n'
-        if ( 'n' !== $new_version) {
-
-            $oik_themer->download_theme_version();
-
-        }
-        $oik_themer->update_oik_theme();
+	    if ( $component !== 'unknown') {
+		    oik_themer_update_component_version( $oik_themer, $component, $new_version );
+	    } else {
+		    oik_themer_update_components_that_need_it( $oik_themer );
+	    }
     } else {
         echo "oik-autoload not available";
     }
 }
 
+function oik_themer_update_component_version( $oik_themer, $component, $new_version ) {
+	//echo $component;
+	//echo $new_version;
+	//$component_type = oik_batch_query_value_from_argv( 3, 'plugin' );
+	$oik_themer->set_component( $component );
+	$oik_themer->get_theme_info();
+	// $oik_blocker->set_component_type( $component_type );
+	// Don't update the plugin if it's a git repo.
+	// Don't update the plugin if new version is 'n'
+	if ( false === oik_themer_component_is_git_repo( $component )) {
+		if ( 'n' !== $new_version ) {
+			//$oik_themer->perform_update();
+			$oik_themer->download_theme_version();
+		} else {
+			gob();
+		}
+	} else {
+		echo "Component is a Git repo: " . $component . PHP_EOL;
+	}
+
+	$oik_themer->update_oik_theme();
+
+}
+
+/**
+ * Processes all themes that have updates available.
+ *
+ */
+function oik_themer_update_components_that_need_it( $oik_themer ) {
+	gob();
+	//$oik_blocker->set_create_plugin( false );
+	//print_r( $option );
+	if ( $option && is_array( $option->response ) ) {
+		foreach ( $option->response as $plugin => $plugin_info ) {
+			//echo $plugin_info->slug;
+			//echo ' ';
+			//echo $plugin_info->new_version;
+			//echo PHP_EOL;
+			oik_themer_update_component_version( $oik_themer, $theme, $new_version );
+		}
+	}
+}
 
 
 oik_themer();
-
-
-

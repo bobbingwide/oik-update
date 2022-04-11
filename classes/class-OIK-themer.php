@@ -273,6 +273,19 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 	    //print_r( $this->theme_post );
 	    //print_r( $this->theme_info );
 	    //gob();
+
+	    $_POST['post_author'] = 1;
+
+	    $_POST['_oikth_type'] = '8';
+	    $_POST['_oikth_slug'] = $this->component;
+	    $_POST['_oikth_desc'] = $this->get_theme_description();
+	    $_POST['_oikth_demo'] = $this->get_theme_preview_url();
+	    $_POST['_oikth_template'] = $this->get_theme_template_ID();
+
+	    // Yoast SEO post meta data
+	    $_POST['_yoast_wpseo_focuskw'] = $this->get_theme_name() . ' WordPress Full Site Editing theme';
+	    $_POST['_yoast_wpseo_metadesc'] = $this->get_theme_name() . ' is a WordPress Full Site Editing theme.';
+	    //print_r( $post );
 	    wp_update_post( $post_arr );
 
     }
@@ -284,6 +297,9 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 	 */
     function is_new_version( $theme_info ) {
         $new_version = $theme_info->version;
+        // Temporarily force new version.
+        //return $new_version;
+
     	//print_r( $theme_info );
     	$theme = wp_get_theme( $theme_info->slug );
     	//print_r( $theme );
@@ -293,10 +309,17 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 	        }
         }
     	return $new_version;
-
     }
 
-
-
-
+	/**
+	 * Previews the theme in order to cache the theme's patterns.
+	 *
+	 */
+    function preview_theme() {
+	    $permalink = get_permalink( $this->theme_post->ID);
+	    $permalink = add_query_arg('preview_theme', $this->theme_info->slug, $permalink );
+	    echo "Previewing theme: " . $permalink . PHP_EOL;
+		$response = wp_remote_get( $permalink, [ 'ssl_verify' => false ] );
+    }
+    
 }

@@ -161,6 +161,7 @@ function oik_themer_update_component_version( $oik_themer, $component, $new_vers
 	}
 
 	$oik_themer->update_oik_theme();
+	$oik_themer->preview_theme();
 
 }
 

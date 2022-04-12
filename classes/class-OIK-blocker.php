@@ -71,7 +71,6 @@ class OIK_blocker extends OIK_wp_a2z{
         $this->echo("New version:", $this->new_version);
         $this->get_plugin_info();
         if ( $this->plugin_info ) {
-
             if ( $this->banner_low ) {
                 $this->get_banner_low();
             } else {
@@ -317,6 +316,12 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 		return $prefix;
 	}
 
+    /**
+     * Attempts to process each block.
+     *
+     * Note: This method gets called even if we didn't update the plugin
+     * or the plugin doesn't exist on WordPress.org
+     */
 	function process_blocks() {
 	    echo "Processing blocks:" . PHP_EOL;
 	    $oik_block_updater = new OIK_block_updater();
@@ -328,25 +333,29 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
     /**
      * Obtains the plugin information from wordpress.org
      *
-     *
-     * @return
+     * Note: This uses WP_org_v12_downloads which calls the WordPress API v1.2 to retrieve the plugin information.
+     * 
+     * @return $plugin_info
      */
     function get_plugin_info()
     {
-        //$wpod = new WP_org_v12_downloads();
+
         $this->plugin_info = null;
         $wpod = new WP_org_v12_downloads();
         $fetched = $wpod->get_download($this->component);
         if ($fetched) {
 
             $plugin_info = $wpod->response;
-            //print_r( $plugin_info );
-            // We're looking for $plugin_info->download_link - for the URL to download
-            // and the banner image extension.
-            $this->plugin_info = $plugin_info;
-            $this->download_link = $plugin_info->download_link;
-            if ( $plugin_info->banners->low ) {
-                $this->banner_low = $plugin_info->banners->low;
+            if ( !property_exists( $plugin_info, 'error' ) ) {
+
+                //print_r( $plugin_info );
+                // We're  looking for $plugin_info->download_link - for the URL to download
+                // and the banner image extension.
+                $this->plugin_info = $plugin_info;
+                $this->download_link = $plugin_info->download_link;
+                if ($plugin_info->banners->low) {
+                    $this->banner_low = $plugin_info->banners->low;
+                }
             }
 
             // The data also includes arrays of [blocks] and [block_assets]

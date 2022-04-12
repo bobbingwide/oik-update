@@ -17,6 +17,9 @@ class OIK_blocker extends OIK_wp_a2z{
 	public $plugin_post = null;
 	public $plugin_data = null; /* From the main plugin file */
 	public $plugin_file = null; /* e.g. oik.php - basename ( second half ) of oik/oik.php for _oikp_name */
+    public $plugin_info = null;
+    public $download_link = null;
+    public $banner_low = null;
 
 	private $create_plugin = true;
 
@@ -64,12 +67,23 @@ class OIK_blocker extends OIK_wp_a2z{
 	 * - Update the oik_plugin, replacing the featured image
 	 */
 	function perform_update() {
-		$this->echo( "Component:", $this->component );
-		$this->echo( "New version:", $this->new_version );
-		$this->download_assets();
-		$this->download_plugin_version();
-		$this->update_installed_plugin();
-		$this->update_oik_plugin();
+        $this->echo("Component:", $this->component);
+        $this->echo("New version:", $this->new_version);
+        $this->get_plugin_info();
+        if ( $this->plugin_info ) {
+
+            if ( $this->banner_low ) {
+                $this->get_banner_low();
+            } else {
+                $this->download_assets();
+            }
+
+            $this->download_plugin_version();
+            $this->update_installed_plugin();
+            $this->update_oik_plugin();
+        } else {
+            $this->echo( "Error:","Not found." );
+        }
 
 	}
 
@@ -156,6 +170,16 @@ class OIK_blocker extends OIK_wp_a2z{
 	}
 
 	function alter_oik_plugin() {
+
+	    /* We need to set meta fields as well.
+	     Otherwise the values from the previous plugin are used.
+	    */
+        $_POST['post_author'] = 1;
+        $_POST['_oikp_type'] = '1';
+        $_POST['_oikp_slug'] = $this->component;
+        $_POST['_oikp_name'] = $this->get_plugin_file_name();
+        $_POST['_oikp_desc'] = $this->get_plugin_name();
+        $_POST['_oikp_uri'] = $this->get_plugin_uri();
 		if ( $this->maybe_update_content() ) {
 			$this->echo( "Updating:", $this->plugin_post->post_title );
 			$this->plugin_post->post_content = $this->create_plugin_content();
@@ -301,8 +325,62 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 
     }
 
+    /**
+     * Obtains the plugin information from wordpress.org
+     *
+     *
+     * @return
+     */
+    function get_plugin_info()
+    {
+        //$wpod = new WP_org_v12_downloads();
+        $this->plugin_info = null;
+        $wpod = new WP_org_v12_downloads();
+        $fetched = $wpod->get_download($this->component);
+        if ($fetched) {
 
+            $plugin_info = $wpod->response;
+            //print_r( $plugin_info );
+            // We're looking for $plugin_info->download_link - for the URL to download
+            // and the banner image extension.
+            $this->plugin_info = $plugin_info;
+            $this->download_link = $plugin_info->download_link;
+            if ( $plugin_info->banners->low ) {
+                $this->banner_low = $plugin_info->banners->low;
+            }
 
+            // The data also includes arrays of [blocks] and [block_assets]
+        }
+        return $this->plugin_info;
+    }
 
+    function get_banner_low() {
+
+        if ( str_contains( $this->banner_low, '.png?') ) {
+            $this->save_banner( $this->component );
+        } else {
+            $this->save_banner( $this->component, 'jpg' );
+        }
+    }
+
+    /**
+     * Download the plugin version's .zip file from wordpress.org
+     *
+     *  https://downloads.wordpress.org/plugin/gutenberg.5.7.0.zip
+     *
+     * Note: The download link indicates if a specific version can be downloaded.
+     *
+     */
+    function download_plugin_version() {
+        $filename = basename( $this->download_link );
+        $url  = 'https://downloads.wordpress.org/plugin/';
+        $url .= $filename;
+        //$target  = 'C:/apache/htdocs/downloads/plugins/';
+        $target = $this->get_downloads_path();
+        $target .= 'plugins/';
+        $target .= $filename;
+        $error = $this->download_url_to_target( $url, $target );
+        return $error;
+    }
 
 }

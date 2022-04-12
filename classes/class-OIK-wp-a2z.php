@@ -95,6 +95,8 @@ class OIK_wp_a2z {
 	}
 
 
+
+
 	function try_png_then_jpg() {
 
 		$icon = $this->save_icon( $this->component);
@@ -335,9 +337,11 @@ class OIK_wp_a2z {
             $this->set_thumbnail_id( $post_id, $featured_image );
 
         } else {
-            $this->echo( 'Featured:', $featured_image );
-            $attached_file = get_attached_file( $featured_image, true );
-            $this->maybe_replace_featured_image( $featured_image_filename, $attached_file );
+            if ( $featured_image !== 10243 && $featured_image !== 4019 ) {
+                $this->echo('Featured:', $featured_image);
+                $attached_file = get_attached_file($featured_image, true);
+                $this->maybe_replace_featured_image($featured_image_filename, $attached_file);
+            }
         }
     }
 

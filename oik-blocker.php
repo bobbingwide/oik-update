@@ -84,6 +84,7 @@ function oik_blocker() {
 		} else {
 			oik_blocker_update_components_that_need_it( $oik_blocker );
 		}
+		oik_blocker_reload_loader();
 	} else {
 		echo "oik-autoload not available";
 	}
@@ -131,9 +132,29 @@ function oik_blocker_update_components_that_need_it( $oik_blocker ) {
 			//echo ' ';
 			//echo $plugin_info->new_version;
 			//echo PHP_EOL;
-			oik_blocker_update_component_version( $oik_blocker, $plugin_info->slug, $plugin_info->new_version );
+            if ( oik_blocker_should_update( $plugin_info ) ) {
+                oik_blocker_update_component_version($oik_blocker, $plugin_info->slug, $plugin_info->new_version);
+            }
 		}
 	}
+}
+
+function oik_blocker_should_update( $plugin_info ) {
+    $should_update = true;
+    if ( $plugin_info->slug === 'gutenberg' && $plugin_info->plugin !== 'gutenberg/gutenberg.php') {
+        echo "Skipping: " . $plugin_info->plugin . PHP_EOL;
+        $should_update = false;
+    }
+    return $should_update;
+}
+
+/**
+ * Rebuilds the oik-loader map file.
+ */
+function oik_blocker_reload_loader() {
+    if ( function_exists('oik_loader_run_oik_loader' )) {
+        oik_loader_run_oik_loader();
+    }
 }
 
 function oik_blocker_query_autoload_classes( $classes ) {

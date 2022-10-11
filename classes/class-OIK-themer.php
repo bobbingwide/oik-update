@@ -53,10 +53,21 @@ class OIK_themer extends OIK_wp_a2z{
         echo $this->component;
 
         $this->theme_info = $wpodt->get_theme( $this->component );
+
+        if ( null === $this->theme_info || is_wp_error( $this->theme_info ) ) {
+            // Theme not found from the wordpress.org downloads - perhaps it's a local one
+            $this->theme_info = $this->get_local_theme_info();
+
+        }
+        //print_r( $this->theme_info );
+
+
         if ( null === $this->theme_info ) {
             $this->theme_info = $wpodt->get_download( $this->component );
+            print_r( $this->theme_info );
             if ( null === $this->theme_info ) {
                 echo "Error: no information for theme: " . $this->component;
+                gob();
             } else {
                 $wpodt->save_theme_info($this->component, $this->theme_info);
                 //$this->theme_info = $wpodt->get_theme( $this->component );
@@ -67,6 +78,28 @@ class OIK_themer extends OIK_wp_a2z{
         echo "Theme info: ";
         print_r( $this->theme_info );
         // $this->set_new_version( );
+    }
+
+    function get_local_theme_info() {
+        $local_theme = wp_get_theme( $this->component );
+        print_r( $local_theme );
+
+        $theme_info = new stdClass();
+        $theme_info->slug = $this->component;
+        $theme_info->name = $local_theme->get('Name');
+        $theme_info->version = $local_theme->get( 'Version' );
+        $theme_info->sections = new stdClass();
+        $theme_info->sections->description = $local_theme->get('Description');
+        $template = $local_theme->get('Template');
+        if ( !empty( $template ) ) {
+            $theme_info->template = $template;
+        }
+        // @TODO last_updated_time
+        $theme_info->preview_url = null;
+        $theme_info->screenshot_url = 'screenshot.png';
+        $theme_info->last_updated_time = time();
+        print_r( $theme_info );
+        return $theme_info;
     }
 
     function get_theme_name() {

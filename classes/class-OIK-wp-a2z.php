@@ -373,6 +373,7 @@ class OIK_wp_a2z {
     }
 
     function copy_to_tmp_name( $file ) {
+        include_once ABSPATH  . 'wp-admin/includes/file.php';
         $tmp_name = wp_tempnam( $file );
         copy( $file, $tmp_name );
         $this->echo( 'tmp_name', $tmp_name );

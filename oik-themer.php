@@ -7,10 +7,15 @@
 /**
  * oik batch process to improve the registration of FSE themes listed in blocks.wp-a2z.org
 
- * Syntax: oikwp oik-themer.php [theme]
+ * Syntax: oikwp oik-themer.php [theme] [version|n]
  *
- * e.g.
- * oikwp oik-themer.php slug url=blocks.wp.a2z
+ * eg
+ * Update or create a theme called slug. Version 'n' means to use the currently installed version of the theme.
+ * Should work for both themes from wordpress.org and locally installed Git repos
+ *
+ * oikwp oik-themer.php slug n url=blocks.wp.a2z
+ *
+ * Update all FSE ( block based ) themes registered in wordpress.org
  *
  * oikwp oik-themer.php url=blocks.wp.a2z
  *

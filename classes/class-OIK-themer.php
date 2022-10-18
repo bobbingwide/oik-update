@@ -302,6 +302,10 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
     	$post_arr['ID'] = $this->theme_post->ID;
     	$post_arr['post_title'] = $this->theme_post->post_title;
     	// Can we control what this gets set to?
+        //print_r( $this->theme_info );
+
+        $post_arr['post_date'] = $this->theme_info->creation_time;
+        // Is this the right field name. I think not. Herb 2022/10/18
     	$post_arr['modified'] = $this->theme_info->last_updated_time;
 	    //print_r( $this->theme_post );
 	    //print_r( $this->theme_info );
@@ -330,8 +334,8 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
 	 */
     function is_new_version( $theme_info ) {
         $new_version = $theme_info->version;
-        // Temporarily force new version.
-        //return $new_version;
+        // Uncomment next line to temporarily force new version
+        return $new_version;
 
     	//print_r( $theme_info );
     	$theme = wp_get_theme( $theme_info->slug );

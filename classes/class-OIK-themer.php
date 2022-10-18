@@ -335,7 +335,7 @@ $template[] = [ 'core/shortcode', [ 'text' => '[bw_plug name=plugin table=y]' ] 
     function is_new_version( $theme_info ) {
         $new_version = $theme_info->version;
         // Uncomment next line to temporarily force new version
-        return $new_version;
+        //return $new_version;
 
     	//print_r( $theme_info );
     	$theme = wp_get_theme( $theme_info->slug );

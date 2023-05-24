@@ -217,6 +217,7 @@ class OIK_themer extends OIK_wp_a2z{
         }
         include_once( ABSPATH . 'wp-admin/includes/misc.php' );
         include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+		include_once( ABSPATH . 'wp-admin/includes/theme.php' );
         $upgrader = new Theme_Upgrader();
         $upgraded = $upgrader->install( $this->zip_file, [ 'overwrite_package' => true ] );
     }

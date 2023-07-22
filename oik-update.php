@@ -86,12 +86,20 @@ function oik_update() {
 	if ( $autoloaded ) {
 		$oik_component_update = new OIK_component_update();
 		$component = oik_batch_query_value_from_argv( 1, 'unknown' );
-		$new_version = oik_batch_query_value_from_argv( 2, 'x.y.z');
+		$from_version = oik_batch_query_value_from_argv( 2, 'x.y.z');
+        //if ( 'x.y.z' === $new_version ) {
+            $new_versions = oik_update_determine_new_versions( $component, $from_version );
+        //} else {
+        //    $new_versions = bw_as_array( $new_version);
+       // }
 		$component_type = oik_batch_query_value_from_argv( 3, 'plugin' );
 		$oik_component_update->set_component( $component );
-		$oik_component_update->set_new_version( $new_version );
-		$oik_component_update->set_component_type( $component_type );
-		$oik_component_update->perform_update();
+        $oik_component_update->set_component_type( $component_type );
+
+        foreach ( $new_versions as $new_version ) {
+            $oik_component_update->set_new_version($new_version);
+            $oik_component_update->perform_update();
+        }
 	} else {
 		echo "oik-autoload not available";
 	}
@@ -111,6 +119,23 @@ function oik_update_query_autoload_classes( $classes ) {
 
 	);
 	return( $classes );
+}
+
+function oik_update_determine_new_versions( $component, $from_version ) {
+	if ( $component === 'wordpress') {
+		$new_versions = [ $from_version ];
+	} else {
+		echo "Listing versions from $from_version.";
+		oik_require( 'class-wp-org-v12-downloads.php', 'wp-top12' );
+		$wpod=new WP_org_v12_downloads();
+		$wpod->get_download( $component );
+		$new_versions=$wpod->list_versions( $from_version );
+		natsort( $new_versions );
+		print_r( $new_versions );
+		//gob();
+	}
+    return $new_versions;
+
 }
 
 

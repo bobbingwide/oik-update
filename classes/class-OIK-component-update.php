@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright (C) Copyright Bobbing Wide 2019
+ * @copyright (C) Copyright Bobbing Wide 2019-2023
  *
  * @package oik-update
  */
@@ -14,9 +14,8 @@ class OIK_component_update {
 	public $current_version; // Current version of Git repo
 	public $new_version; // New version of the WordPress component to download and update to
 	public $target_file_name; // File name of the target .zip file
-
-    private $target_dir;
-
+	private $target_dir;
+	public $version_date;
 	function __construct() {
 		$this->set_owner();
 		$this->set_repo();

@@ -87,8 +87,9 @@ function oik_update() {
 		$oik_component_update = new OIK_component_update();
 		$component = oik_batch_query_value_from_argv( 1, 'unknown' );
 		$from_version = oik_batch_query_value_from_argv( 2, 'x.y.z');
+		$component_type = oik_batch_query_value_from_argv( 3, 'plugin' );
         //if ( 'x.y.z' === $new_version ) {
-            $new_versions = oik_update_determine_new_versions( $component, $from_version );
+            $new_versions = oik_update_determine_new_versions( $component, $from_version, $component_type );
         //} else {
         //    $new_versions = bw_as_array( $new_version);
        // }
@@ -121,11 +122,13 @@ function oik_update_query_autoload_classes( $classes ) {
 	return( $classes );
 }
 
-function oik_update_determine_new_versions( $component, $from_version ) {
+function oik_update_determine_new_versions( $component, $from_version, $component_type ) {
 	if ( $component === 'wordpress') {
 		$new_versions = [ $from_version ];
+	} elseif ( $component_type === 'theme') {
+		$new_versions = [ $from_version ];
 	} else {
-		echo "Listing versions from $from_version.";
+		echo "Listing plugin versions from $from_version.";
 		oik_require( 'class-wp-org-v12-downloads.php', 'wp-top12' );
 		$wpod=new WP_org_v12_downloads();
 		$wpod->get_download( $component );

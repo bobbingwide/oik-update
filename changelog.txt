@@ -1,5 +1,4 @@
 == Upgrade Notice ==
-
 = 1.2.0 =
 Upgrade for improvements to oik-themer.php
 
@@ -9,9 +8,7 @@ Upgrade for improvements to oik-blocker.php.
 = 1.0.0 = 
 Upgrade for oik-themer.php and improvements to oik-blocker.php
 
-
 == Changelog ==
-
 = 1.2.0 =
 * Changed: Add preview_theme() #4
 * Changed: Implement update for components that need it #4

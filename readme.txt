@@ -3,8 +3,8 @@ Contributors: bobbingwide, vsgloik
 Donate link: https://www.oik-plugins.com/oik/oik-donate/
 Tags: oik, plugin, update, WP-a2z, blocks, themes, APIs
 Requires at least: 5.8.1
-Tested up to: 5.9.3
-Stable tag: 1.2.0
+Tested up to: 6.4-RC3
+Stable tag: 1.2.1
 
 oik-batch routines to semiautomate the process of updating
 
@@ -42,19 +42,18 @@ Dependent upon:
 None
 
 == Upgrade Notice ==
-= 1.2.0 =
-Upgrade for improvements to oik-themer.php
+= 1.2.1 =
+Upgrade for improvements to oik-themer.php and oik-update.php
 
 == Changelog ==
-= 1.2.0 =
-* Changed: Add preview_theme() #4
-* Changed: Implement update for components that need it #4
-* Changed: Add is_new_version() method #4
-* Changed: Add some logic to actually update the oik-theme post #4
-* Changed: Start to implement auto updates #4
-* Changed: Set default featured image for environment #2
-* Tested: With WordPress 5.9.3 and WordPress Multi Site
-* Tested: With PHP 8.0
+= 1.2.1 =
+* Changed: Support PHP 8.1 and PHP 8.2 #8
+* Changed: Improve process for adding/updating themes #4
+* Changed: Improve process for adding/updating plugins #2
+* Fixed: Set overwrite_package to true when updating a theme #6
+* Tested: With WordPress 6.4-RC3 and WordPress Multisite
+* Tested: With Gutenberg 16.9.0
+* Tested: With PHP 8.1 and PHP 8.2
 
 == Further reading ==
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright (C) Copyright Bobbing Wide 2021
+ * @copyright (C) Copyright Bobbing Wide 2021-2023
  *
  * @package oik-update
  */
@@ -20,6 +20,7 @@ class OIK_themer extends OIK_wp_a2z{
      * @var
      */
     private $theme_post;
+	private $zip_file;
 
     function __construct() {
         parent::__construct();
